@@ -1,7 +1,5 @@
 package controller;
 
-import java.io.IOException;
-
 import model.catModel;
 import view.catView;
 
@@ -22,7 +20,7 @@ private catModel model;
 		}
 	}
 	
-	public void sellCatnip(int amount) throws IOException {
+	public void sellCatnip(int amount) {
 		if (amount >= 10) {
 			model.sold(amount);
 		}
@@ -35,7 +33,7 @@ private catModel model;
 		model.plantCatnip(i, j);
 	}
 	
-	public void harvest() throws IOException {
+	public void harvest() {
 		model.harvest();
 	}
 	
