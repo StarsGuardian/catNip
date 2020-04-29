@@ -9,8 +9,8 @@ private static final char empty = 'e';
 private static final char grown = 'g';
 private int money;
 private int catnipRemaining;
-private static int legacy = 1000;
-private static boolean buyable = false;
+private int legacy = 1000;
+private boolean buyable = false;
 	
 	public catModel() {
 		money = 0;
