@@ -302,4 +302,12 @@ public class catModel extends Observable{
 		//catnipRemaining will be deducted by 5 per minute
 	}
 	
+	/**
+	 * This is passed to controller for updating view
+	 * @return
+	 */
+	public char[][] getModel(){
+		return field;
+	}
+	
 }

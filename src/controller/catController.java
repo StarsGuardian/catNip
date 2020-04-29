@@ -40,4 +40,8 @@ private catModel model;
 	public void consumeCatnip() {
 		model.consume();
 	}
+	
+	public char[][] getNewFieldState(){
+		return model.getModel();
+	}
 }
