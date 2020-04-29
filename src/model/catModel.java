@@ -42,16 +42,20 @@ private boolean buyable = false;
 		}
 	}
 	
-	public void harvest(int i, int j) {
-		if (field[i][j] == grown) {
-			field[i][j] = empty;
-			catnipRemaining += 1;
-			if (catnipRemaining >= legacy) {
-				legacy = catnipRemaining;
+	public void harvest() {
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (field[i][j] == grown) {
+					field[i][j] = empty;
+					catnipRemaining += 1;
+					if (catnipRemaining >= legacy) {
+						legacy = catnipRemaining;
+					}
+				}
 			}
-			setChanged();
-			notifyObservers();
 		}
+		setChanged();
+		notifyObservers();
 	}
 	
 	public void sold(int amount) {
