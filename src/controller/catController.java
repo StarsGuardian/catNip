@@ -33,8 +33,8 @@ private catModel model;
 		model.plantCatnip(i, j);
 	}
 	
-	public void harvest(int i, int j) {
-		model.harvest(i, j);
+	public void harvest() {
+		model.harvest();
 	}
 	
 	public void consumeCatnip() {
