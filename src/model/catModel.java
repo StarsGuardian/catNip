@@ -14,7 +14,7 @@ private boolean buyable = false;
 	
 	public catModel() {
 		money = 0;
-		catnipRemaining = 0;
+		catnipRemaining = legacy;
 		field = new char[10][10];
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
@@ -46,11 +46,11 @@ private boolean buyable = false;
 		if (field[i][j] == grown) {
 			field[i][j] = empty;
 			catnipRemaining += 1;
+			if (catnipRemaining >= legacy) {
+				legacy = catnipRemaining;
+			}
 			setChanged();
 			notifyObservers();
-		}
-		if (catnipRemaining >= legacy) {
-			legacy = catnipRemaining;
 		}
 	}
 	
