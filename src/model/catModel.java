@@ -1,6 +1,7 @@
 package model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ public class catModel extends Observable{
 	private boolean buyable = false;
 	//This parameter checks if harvest is called
 	private boolean harvestCalled = false;
-	
+	//These parameter represent spring, summer, fall, winter
+	private boolean spring, summer, fall, winter;
 	/**
 	 * Simple test for running in console
 	 * @param args
@@ -85,6 +87,36 @@ public class catModel extends Observable{
 		}
 		reader_field.close();
 		
+		long elapsed = System.currentTimeMillis();
+		if ((elapsed / 1000 / 60) % 60 >= 0 && (elapsed / 1000 / 60) % 60 < 15) {
+			spring = true;
+			summer = false;
+			fall = false;
+			winter = false;
+			System.out.println("spring");
+		}
+		else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
+			spring = false;
+			summer = true;
+			fall = false;
+			winter = false;
+			System.out.println("summer");
+		}
+		else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
+			spring = false;
+			summer = false;
+			fall = true;
+			winter = false;
+			System.out.println("fall");
+		}
+		else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 < 59) {
+			spring = false;
+			summer = false;
+			fall = false;
+			winter = true;
+			System.out.println("winter");
+		}
+		
 		List<String> line = new ArrayList<String>();
 		while(reader_catnip.hasNextLine()) {
 			String string = reader_catnip.nextLine().trim();
@@ -93,12 +125,26 @@ public class catModel extends Observable{
 			int row = Integer.parseInt(filecontent[1]);
 			int col = Integer.parseInt(filecontent[2]);
 			long duration = System.currentTimeMillis() - time;
-			plantCatnip(row, col);
 			System.out.println(duration);
 			System.out.println(duration / 1000 / 60);
-			if (duration / 1000 / 60 >= 1) {
+			if (duration / 1000 / 60 >= 1 && spring) {
 				grown(row, col);
 				line.add(string);
+			}
+			else if (duration / 1000 / 60 >= 3 && summer) {
+				grown(row, col);
+				line.add(string);
+			}
+			else if (duration / 1000 / 60 >= 1 && fall) {
+				grown(row, col);
+				line.add(string);
+			}
+			else if (duration / 1000 / 60 >= 1 && winter) {
+				grown(row, col);
+				line.add(string);
+			}
+			else {
+				plantCatnip(row, col);
 			}
 		}
 		reader_catnip.close();
@@ -122,26 +168,16 @@ public class catModel extends Observable{
 			}
 			timeTemp.close();
 			reader_catnip.close();
-			if (harvestIsCalled()) {
-				File modifyTime = new File("timeTemp.txt");
-				Scanner reader_timeTemp = new Scanner(modifyTime);
-				FileWriter timefile = new FileWriter("time.txt");
-				while (reader_timeTemp.hasNextLine()) {
-					timefile.write(reader_timeTemp.nextLine());
-					timefile.write("\n");
-				}
-				reader_timeTemp.close();
-				timefile.close();
-			}
 		}
+		line.clear();
 		
 		int lineCounter = 0;
 		while (reader_data.hasNextLine()) {
 			if (lineCounter == 0) {
-				money = Integer.parseInt(reader_data.nextLine());
+				money = Integer.parseInt(reader_data.nextLine().trim());
 			}
 			else {
-				catnipRemaining = Integer.parseInt(reader_data.nextLine());
+				catnipRemaining = Integer.parseInt(reader_data.nextLine().trim());
 			}
 			lineCounter ++;
 		}
@@ -167,7 +203,7 @@ public class catModel extends Observable{
 			notifyObservers();
 		}
 	}
-	
+
 	/**
 	 * This private method update all the slots when plant, harvest
 	 * or grown takes place
@@ -214,16 +250,17 @@ public class catModel extends Observable{
 	 * This method harvest the grown catnip
 	 */
 	public void harvest() {
+		harvestCalled = true;
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
 				if (field[i][j] == grown) {
 					field[i][j] = empty;
 					catnipRemaining += 1;
+					updateTimefile();
 					syncMoneyNip();
 					if (catnipRemaining >= legacy) {
 						legacy = catnipRemaining;
 					}
-					harvestCalled = true;
 				}
 			}
 		}
@@ -232,6 +269,30 @@ public class catModel extends Observable{
 		notifyObservers();
 	}
 	
+	private void updateTimefile() {
+		// TODO Auto-generated method stub
+		if (harvestIsCalled()) {
+			File modifyTime = new File("timeTemp.txt");
+			Scanner reader_timeTemp;
+			FileWriter timefile;
+			try {
+				reader_timeTemp = new Scanner(modifyTime);
+				timefile = new FileWriter("time.txt");
+				while (reader_timeTemp.hasNextLine()) {
+					timefile.write(reader_timeTemp.nextLine());
+					timefile.write("\n");
+				}
+				reader_timeTemp.close();
+				timefile.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * This method synchronize money and remaining catnip
 	 */
