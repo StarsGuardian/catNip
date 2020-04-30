@@ -27,7 +27,7 @@ private catModel model;
 		else {
 			System.out.println("Minimum of 10 catnips are required to complete selling process!");
 		}
-	}
+	} 
 	
 	public void plantCatnip(int i, int j) {
 		model.plantCatnip(i, j);

@@ -12,7 +12,7 @@ import java.util.Scanner;
  * This class is model
  * @author ianfang
  *
- */
+ */ 
 public class catModel extends Observable{
 	//This field controls each slot in view
 	private char[][] field;
