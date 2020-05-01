@@ -363,6 +363,17 @@ public class catModel extends Observable{
 		//catnipRemaining will be deducted by 5 per minute
 	}
 	
+	public int getCatNipRemaining() {
+		return catnipRemaining;
+	}
+	
+	public int getLegacy() {
+		return legacy;
+	}
+	
+	public int getMoney() {
+		return money;
+	}
 	/**
 	 * This is passed to controller for updating view
 	 * @return

@@ -44,4 +44,16 @@ private catModel model;
 	public char[][] getNewFieldState(){
 		return model.getModel();
 	}
+	
+	public int getCatnip() {
+		return model.getCatNipRemaining();
+	}
+	
+	public int getMoney() {
+		return model.getMoney();
+	}
+	
+	public int getLegacy() {
+		return model.getLegacy();
+	}
 }
