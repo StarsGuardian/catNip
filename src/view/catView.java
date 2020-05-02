@@ -30,6 +30,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import model.catModel;
 
 /**
  * This class is View
@@ -39,6 +40,7 @@ import javafx.stage.Stage;
 public class catView extends Application implements Observer{
 	private catController controller;
 	private ImageView[][] imageBoard;
+	private catModel model;
 	
 	
 	public static void main(String[] args) {
@@ -66,6 +68,7 @@ public class catView extends Application implements Observer{
 				event.consume();
 			}
 		});
+		DrawBoard();
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
@@ -171,6 +174,7 @@ public class catView extends Application implements Observer{
 						Dragboard db = event.getDragboard();
 						if (db.hasImage()) {
 							imageBoard[row][col].setImage(db.getImage());
+							controller.plantCatnip(row, col);
 							success = true;
 						}
 						event.setDropCompleted(success);
@@ -207,7 +211,38 @@ public class catView extends Application implements Observer{
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
-		
+		DrawBoard();
+	}
+
+	private void DrawBoard() {
+		// TODO Auto-generated method stub
+		char[][] newboard = controller.getNewFieldState();
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (newboard[i][j] == 'g') {
+					FileInputStream blank;
+					try {
+						blank = new FileInputStream("src/plants.jpg");
+						Image slot = new Image(blank);
+						imageBoard[i][j].setImage(slot);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if(newboard[i][j] == 's') {
+					FileInputStream update;
+					try {
+						update = new FileInputStream("src/seed.jpg");
+						Image slot = new Image(update);
+						imageBoard[i][j].setImage(slot);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 }
 

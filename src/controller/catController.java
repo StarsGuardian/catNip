@@ -7,8 +7,7 @@ public class catController {
 private catModel model;
 
 	public catController(catView view) {
-		model = new catModel();
-		model.addObserver(view);
+		model = new catModel(view);
 	}
 	
 	public void buyLand() {

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Scanner;
 
+import view.catView;
+
 /**
  * This class is model
  * @author ianfang
@@ -37,28 +39,18 @@ public class catModel extends Observable{
 	private boolean spring, summer, fall, winter;
 	
 	/**
-	 * Simple test for running in console
-	 * @param args
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException {
-		catModel mo = new catModel();
-	}
-	
-	/**
 	 * Constructor, each time when model is initialized
 	 * it retrives game state from file to accomplish background running
 	 */
-	public catModel() {
+	public catModel(catView view) {
 		field = new char[10][10];
+		this.addObserver(view);
 		try {
 			RetriveState();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		setChanged();
-		notifyObservers();
 	}
 
 	/**
@@ -67,12 +59,10 @@ public class catModel extends Observable{
 	 * @throws IOException
 	 */
 	private void RetriveState() throws IOException {
-		
 		getFieldStates();
 		getSeason();
 		getPlantMonitor();
 		getMoneyNRemaining();
-		startRun();
 	}
 	
 	private void getMoneyNRemaining() {
@@ -219,10 +209,6 @@ public class catModel extends Observable{
 		}
 	}
 
-	private void startRun() {
-		// TODO Auto-generated method stub
-	}
-
 	private boolean harvestIsCalled() {
 		// TODO Auto-generated method stub
 		return harvestCalled;
@@ -238,8 +224,6 @@ public class catModel extends Observable{
 			field[i][j] = seed;
 			updatePlantTime(i, j);
 			updateField(field);
-			setChanged();
-			notifyObservers();
 		}
 	}
 
@@ -358,6 +342,8 @@ public class catModel extends Observable{
 		if (field[i][j] == seed) {
 			field[i][j] = grown;
 			updateField(field);
+			setChanged();
+			notifyObservers();
 		}
 	}
 	
