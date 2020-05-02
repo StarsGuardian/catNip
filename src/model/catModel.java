@@ -342,8 +342,6 @@ public class catModel extends Observable{
 		if (field[i][j] == seed) {
 			field[i][j] = grown;
 			updateField(field);
-			setChanged();
-			notifyObservers();
 		}
 	}
 	
