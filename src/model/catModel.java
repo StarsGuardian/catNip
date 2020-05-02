@@ -12,36 +12,36 @@ import java.util.Scanner;
 import view.catView;
 
 /**
- * This class is model, all the methods inside this class
- * control the field
+ * This class is model, all the methods inside this class control the field
+ * 
  * @author ianfang
  *
- */ 
-public class catModel extends Observable{
-	//This field controls each slot in view
+ */
+public class catModel extends Observable {
+	// This field controls each slot in view
 	private char[][] field;
-	//This char represents seed, the state before harvestable
+	// This char represents seed, the state before harvestable
 	private static final char seed = 's';
-	//This char represents empty slot, this slot is available for planting new seed
+	// This char represents empty slot, this slot is available for planting new seed
 	private static final char empty = 'e';
-	//This char represents grown catnip, this state means harvestable
+	// This char represents grown catnip, this state means harvestable
 	private static final char grown = 'g';
-	//This keeps tracking the total money;
+	// This keeps tracking the total money;
 	private static int money;
-	//This keeps tracking the remaining catnip
+	// This keeps tracking the remaining catnip
 	private static int catnipRemaining;
-	//This is the legacy
+	// This is the legacy
 	private int legacy = 1000;
-	//This parameter checks if money is enough for buying new land
+	// This parameter checks if money is enough for buying new land
 	private boolean buyable = false;
-	//This parameter checks if harvest is called
+	// This parameter checks if harvest is called
 	private boolean harvestCalled = false;
-	//These parameter represent spring, summer, fall, winter
+	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
-	
+
 	/**
-	 * Constructor, each time when model is initialized
-	 * it retrives game state from file to accomplish background running
+	 * Constructor, each time when model is initialized it retrives game state from
+	 * file to accomplish background running
 	 */
 	public catModel(catView view) {
 		field = new char[10][10];
@@ -55,8 +55,9 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This private method calls three functions to retrive three
-	 * different parts of the game state
+	 * This private method calls three functions to retrive three different parts of
+	 * the game state
+	 * 
 	 * @throws IOException
 	 */
 	private void RetriveState() throws IOException {
@@ -65,7 +66,7 @@ public class catModel extends Observable{
 		getPlantMonitor();
 		getMoneyNRemaining();
 	}
-	
+
 	/**
 	 * this method reads data.txt which contains money and remaining catnip
 	 * information
@@ -80,11 +81,10 @@ public class catModel extends Observable{
 			while (reader_data.hasNextLine()) {
 				if (lineCounter == 0) {
 					money = Integer.parseInt(reader_data.nextLine().trim());
-				}
-				else {
+				} else {
 					catnipRemaining = Integer.parseInt(reader_data.nextLine().trim());
 				}
-				lineCounter ++;
+				lineCounter++;
 			}
 			reader_data.close();
 		} catch (FileNotFoundException e) {
@@ -92,13 +92,13 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * This method reads time.txt file which contains the state and plant state of
-	 * each field slot and the coordinates of each slot
-	 * If harvest is not called, then grown plant will not be removed
-	 * If harvest is called, harvested plant information will be removed from
-	 * the time.txt file which allows user to place a new seed on empty field
+	 * each field slot and the coordinates of each slot If harvest is not called,
+	 * then grown plant will not be removed If harvest is called, harvested plant
+	 * information will be removed from the time.txt file which allows user to place
+	 * a new seed on empty field
 	 */
 	private void getPlantMonitor() {
 		// TODO Auto-generated method stub
@@ -107,7 +107,7 @@ public class catModel extends Observable{
 		try {
 			reader_catnip = new Scanner(file_catnip);
 			List<String> line = new ArrayList<String>();
-			while(reader_catnip.hasNextLine()) {
+			while (reader_catnip.hasNextLine()) {
 				String string = reader_catnip.nextLine().trim();
 				String[] filecontent = string.split(" ", 3);
 				long time = Long.parseLong(filecontent[0]);
@@ -116,39 +116,35 @@ public class catModel extends Observable{
 				long duration = System.currentTimeMillis() - time;
 				System.out.println("time elapsed for this catnip: ");
 				System.out.println(duration / 1000 / 60);
-				//different season have requires different amount of time
-				//for catnip to grow
+				// different season have requires different amount of time
+				// for catnip to grow
 				if (duration / 1000 / 60 >= 5 && spring) {
 					grown(row, col);
 					line.add(string);
-				}
-				else if (duration / 1000 / 60 >= 3 && summer) {
+				} else if (duration / 1000 / 60 >= 3 && summer) {
 					grown(row, col);
 					line.add(string);
-				}
-				else if (duration / 1000 / 60 >= 1 && fall) {
+				} else if (duration / 1000 / 60 >= 1 && fall) {
 					grown(row, col);
 					line.add(string);
-				}
-				else if (duration / 1000 / 60 >= 10 && winter) {
+				} else if (duration / 1000 / 60 >= 10 && winter) {
 					grown(row, col);
 					line.add(string);
-				}
-				else {
+				} else {
 					plantCatnip(row, col);
 				}
 			}
 			reader_catnip.close();
-			
-			//if a slot is havested, remove the slot information from file
-			//and update the file
+
+			// if a slot is havested, remove the slot information from file
+			// and update the file
 			reader_catnip = new Scanner(file_catnip);
 			FileWriter timeTemp = new FileWriter("timeTemp.txt");
 			boolean flag = false;
 			if (line.size() > 0) {
 				while (reader_catnip.hasNextLine()) {
 					String currentLine = reader_catnip.nextLine().trim();
-					for (String lineToRemove: line) {
+					for (String lineToRemove : line) {
 						if (lineToRemove.compareTo(currentLine) == 0) {
 							flag = true;
 						}
@@ -172,8 +168,7 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This method reads field.txt, and reset the field to it's latest
-	 * state
+	 * This method reads field.txt, and reset the field to it's latest state
 	 */
 	private void getFieldStates() {
 		// TODO Auto-generated method stub
@@ -182,12 +177,12 @@ public class catModel extends Observable{
 		try {
 			reader_field = new Scanner(file_field);
 			int i = 0;
-			while(reader_field.hasNextLine()) {
+			while (reader_field.hasNextLine()) {
 				String string = reader_field.nextLine().trim();
 				for (int j = 0; j < string.length(); j++) {
-						field[i][j] = string.charAt(j);
+					field[i][j] = string.charAt(j);
 				}
-				i ++;
+				i++;
 			}
 			reader_field.close();
 		} catch (FileNotFoundException e) {
@@ -195,11 +190,10 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This method controls season change
-	 * method uses user local time and divides one hour into
-	 * four parts, each season occupies 15 minutes
+	 * This method controls season change method uses user local time and divides
+	 * one hour into four parts, each season occupies 15 minutes
 	 */
 	private boolean getSeason() {
 		// TODO Auto-generated method stub
@@ -211,24 +205,21 @@ public class catModel extends Observable{
 			winter = false;
 			System.out.println("spring");
 			return spring;
-		}
-		else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
+		} else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
 			spring = false;
 			summer = true;
 			fall = false;
 			winter = false;
 			System.out.println("summer");
 			return summer;
-		}
-		else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
+		} else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
 			spring = false;
 			summer = false;
 			fall = true;
 			winter = false;
 			System.out.println("fall");
 			return fall;
-		}
-		else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
+		} else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
 			spring = false;
 			summer = false;
 			fall = false;
@@ -241,6 +232,7 @@ public class catModel extends Observable{
 
 	/**
 	 * this method checks if harvest is called
+	 * 
 	 * @return harvestCalled
 	 */
 	private boolean harvestIsCalled() {
@@ -249,7 +241,8 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This method places one catnip seed in the target slot 
+	 * This method places one catnip seed in the target slot
+	 * 
 	 * @param i
 	 * @param j
 	 */
@@ -262,8 +255,9 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This private method updates all the slots when plant, harvest
-	 * or grown takes place
+	 * This private method updates all the slots when plant, harvest or grown takes
+	 * place
+	 * 
 	 * @param field
 	 */
 	private void updateField(char[][] field) {
@@ -271,8 +265,8 @@ public class catModel extends Observable{
 		FileWriter fieldfile;
 		try {
 			fieldfile = new FileWriter("field.txt");
-			for (char[] innerArray: field) {
-				for (char slot: innerArray) {
+			for (char[] innerArray : field) {
+				for (char slot : innerArray) {
 					fieldfile.write(Character.toString(slot));
 				}
 				fieldfile.write("\n");
@@ -283,10 +277,11 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This private method write the time of each catnip has been placed 
-	 * back to the file and mark the slot
+	 * This private method write the time of each catnip has been placed back to the
+	 * file and mark the slot
+	 * 
 	 * @param i
 	 * @param j
 	 */
@@ -295,7 +290,8 @@ public class catModel extends Observable{
 		FileWriter timefile;
 		try {
 			timefile = new FileWriter("time.txt", true);
-			timefile.write(String.valueOf(System.currentTimeMillis() + " " + String.valueOf(i) + " " + String.valueOf(j)));
+			timefile.write(
+					String.valueOf(System.currentTimeMillis() + " " + String.valueOf(i) + " " + String.valueOf(j)));
 			timefile.write("\n");
 			timefile.close();
 		} catch (IOException e) {
@@ -303,11 +299,10 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * This method harvest the grown catnip
-	 * update the remaining catnip
-	 * and update the view directly
+	 * This method harvest the grown catnip update the remaining catnip and update
+	 * the view directly
 	 */
 	public void harvest() {
 		harvestCalled = true;
@@ -328,11 +323,11 @@ public class catModel extends Observable{
 		setChanged();
 		notifyObservers();
 	}
-	
+
 	/**
-	 * This method replace the time.txt if harvest is called
-	 * if harvest is called, this method removes all the grown
-	 * catnip info from the file, and keeps those has grown yet
+	 * This method replace the time.txt if harvest is called if harvest is called,
+	 * this method removes all the grown catnip info from the file, and keeps those
+	 * has grown yet
 	 */
 	private void updateTimefile() {
 		// TODO Auto-generated method stub
@@ -359,8 +354,8 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This method synchronize money and remaining catnip
-	 * update newest money and remaining catnip to file
+	 * This method synchronize money and remaining catnip update newest money and
+	 * remaining catnip to file
 	 */
 	private void syncMoneyNip() {
 		// TODO Auto-generated method stub
@@ -375,9 +370,10 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * This method changes the state of catnip to grown
+	 * 
 	 * @param i
 	 * @param j
 	 */
@@ -387,9 +383,10 @@ public class catModel extends Observable{
 			updateField(field);
 		}
 	}
-	
+
 	/**
 	 * This method will be called when user sells catnip
+	 * 
 	 * @param amount
 	 */
 	public void sold(int amount) {
@@ -397,9 +394,10 @@ public class catModel extends Observable{
 		money += Math.round(amount / 10);
 		syncMoneyNip();
 	}
-	
+
 	/**
 	 * This method checks if user is eligible buying land
+	 * 
 	 * @return
 	 */
 	public boolean checkBuyable() {
@@ -408,10 +406,9 @@ public class catModel extends Observable{
 		}
 		return buyable;
 	}
-	
+
 	/**
-	 * This method unlocks a new land for user and deduct
-	 * the money by 100
+	 * This method unlocks a new land for user and deduct the money by 100
 	 */
 	public void buyLand() {
 		money -= 100;
@@ -422,43 +419,47 @@ public class catModel extends Observable{
 		setChanged();
 		notifyObservers();
 	}
-	
-	
+
 	public void consume() {
-		//check system clock
-		//catnipRemaining will be deducted by 5 per minute
+		// check system clock
+		// catnipRemaining will be deducted by 5 per minute
 	}
-	
+
 	/**
 	 * this method returns the remaining catnip
+	 * 
 	 * @return catnipRemaining
 	 */
 	public int getCatNipRemaining() {
 		return catnipRemaining;
 	}
-	
+
 	/**
 	 * this method returns the legacy amount
+	 * 
 	 * @return legacy
 	 */
 	public int getLegacy() {
 		return legacy;
 	}
-	
+
 	/**
 	 * this method returns how much money user owns
+	 * 
 	 * @return money
 	 */
 	public int getMoney() {
 		return money;
 	}
+
 	/**
-	 * This is passed to controller for updating view
-	 * this method returns the newest model state
+	 * This is passed to controller for updating view this method returns the newest
+	 * model state
+	 * 
 	 * @return field
 	 */
-	public char[][] getModel(){
+	public char[][] getModel() {
 		return field;
 	}
-	
+
 }
