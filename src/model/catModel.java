@@ -35,6 +35,7 @@ public class catModel extends Observable{
 	private boolean harvestCalled = false;
 	//These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
+	
 	/**
 	 * Simple test for running in console
 	 * @param args
@@ -66,10 +67,7 @@ public class catModel extends Observable{
 	 * @throws IOException
 	 */
 	private void RetriveState() throws IOException {
-		//field.txt contains the status of each slot in view
-		//time.txt monitors each catnip in side the slot respectively, keeps
-		//tracking the catnip state
-		//data.txt has the info of money and catnipRemaining
+		
 		getFieldStates();
 		getSeason();
 		getPlantMonitor();

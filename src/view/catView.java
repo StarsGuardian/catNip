@@ -18,50 +18,79 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * This class is View
+ * @author ianfang
+ *
+ */
 public class catView extends Application implements Observer{
 	private catController controller;
+	private ImageView[][] imageBoard;
 	
 	
 	public static void main(String[] args) {
 		launch(args);
 	}
 	
+	/**
+	 * This displays game board
+	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 		controller = new catController(this);
+		imageBoard = new ImageView[10][10];
 		primaryStage.setTitle("Katten Idle Game");
 		BorderPane window = new BorderPane();
-		window.setTop(firstRowOfBoard());
+		window.setTop(RowsOfBoard());
 		Scene scene = new Scene(window, 750, 600);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 	
+	/**
+	 * This function divided the game board into three rows
+	 * Then use VBox to display these rows
+	 * @return
+	 * @throws FileNotFoundException
+	 */
 	@SuppressWarnings("static-access")
-	private HBox firstRowOfBoard() {
+	private VBox RowsOfBoard() throws FileNotFoundException {
 		// TODO Auto-generated method stub
+		VBox gameBoard = new VBox();
 		HBox hb_firstRow = new HBox();
 		HBox hb_money = new HBox();
 		HBox hb_grass = new HBox();
+		HBox hb_seed = new HBox();
 		HBox hb_button = new HBox();
 		Label totalMoney = new Label();
 		Label catNip = new Label();
 		FileInputStream moneyBag;
 		FileInputStream grass;
+		FileInputStream seeds;
 		try {
 			moneyBag = new FileInputStream("src/money.jpg");
 			grass = new FileInputStream("src/grass.jpg");
+			seeds = new FileInputStream("src/seed.jpg");
 			Image money = new Image(moneyBag);
 			Image grassImage = new Image(grass);
+			Image seedsImage = new Image(seeds);
 			ImageView showMoney = new ImageView();
 			ImageView showGrass = new ImageView();
+			ImageView showSeeds = new ImageView();
 			showMoney.setImage(money);
 			showGrass.setImage(grassImage);
+			showSeeds.setImage(seedsImage);
+			totalMoney.setFont(Font.font ("Verdana", 15));
 			totalMoney.setText(String.valueOf(controller.getMoney()));
+			catNip.setFont(Font.font ("Verdana", 15));
 			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 			hb_money.getChildren().addAll(showMoney, totalMoney);
 			hb_money.setAlignment(Pos.CENTER);
@@ -69,6 +98,8 @@ public class catView extends Application implements Observer{
 			hb_grass.getChildren().addAll(showGrass, catNip);
 			hb_grass.setAlignment(Pos.CENTER);
 			hb_grass.setMargin(showGrass, new Insets(20,20,20,40));
+			hb_seed.getChildren().add(showSeeds);
+			hb_seed.setMargin(showSeeds, new Insets(20,20,20,40));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -78,7 +109,7 @@ public class catView extends Application implements Observer{
 			controller.harvest();
 			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 		});
-		Button sell = new Button("Sell");
+		Button sell = new Button("  Sell  ");
 		sell.setOnMouseClicked((event) -> {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
 			pop.display();
@@ -87,11 +118,45 @@ public class catView extends Application implements Observer{
 		hb_button.setAlignment(Pos.CENTER);
 		hb_button.setMargin(collect, new Insets(20,20,20,40));
 		hb_button.setMargin(sell, new Insets(20,20,20,20));
-		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_button);
+		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, hb_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
-		return hb_firstRow;
+		HBox hb_secondRow = new HBox();
+		FileInputStream getCat;
+		HBox hb_cat = new HBox();
+		try {
+			getCat = new FileInputStream("src/cat.jpg");
+			Image catImage = new Image(getCat);
+			ImageView cat = new ImageView(catImage);
+			hb_cat.getChildren().add(cat);
+			hb_cat.setMargin(cat, new Insets(20,20,20,20));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		hb_secondRow.getChildren().addAll(hb_cat);
+		HBox hb_thirdRow = new HBox();
+		GridPane grid = new GridPane();
+		grid.setGridLinesVisible(false);
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				StackPane stack = new StackPane();
+				FileInputStream blank = new FileInputStream("src/plants.jpg");
+				Image slot = new Image(blank);
+				ImageView image = new ImageView(slot);
+				imageBoard[i][j] = image;
+				stack.getChildren().add(image);
+				stack.setMargin(image, new Insets(10,10,10,10));
+				grid.add(stack, j, i);
+			}
+		}
+		hb_thirdRow.getChildren().addAll(grid);
+		hb_thirdRow.setMargin(grid, new Insets(20,20,20,20));
+		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_thirdRow);
+		return gameBoard;
 	}
-	
+
+	/**
+	 * Observable
+	 */
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
@@ -99,6 +164,11 @@ public class catView extends Application implements Observer{
 	}
 }
 
+/**
+ * This is the pop up window class
+ * @author ianfang
+ *
+ */
 class PopWindow extends Stage {
 	private catController control;
 	private Label newMoney;
@@ -110,6 +180,9 @@ class PopWindow extends Stage {
 		grass = catNip;
 	}
 	
+	/**
+	 * draw the pop up window
+	 */
 	@SuppressWarnings("static-access")
 	public void display() {
 		Button confirm = new Button("Confirm");
