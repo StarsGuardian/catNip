@@ -67,26 +67,129 @@ public class catModel extends Observable{
 	 */
 	private void RetriveState() throws IOException {
 		//field.txt contains the status of each slot in view
-		File file_field = new File("field.txt");
 		//time.txt monitors each catnip in side the slot respectively, keeps
 		//tracking the catnip state
-		File file_catnip = new File("time.txt");
 		//data.txt has the info of money and catnipRemaining
+		getFieldStates();
+		getSeason();
+		getPlantMonitor();
+		getMoneyNRemaining();
+		startRun();
+	}
+	
+	private void getMoneyNRemaining() {
+		// TODO Auto-generated method stub
+		int lineCounter = 0;
 		File file_data = new File("data.txt");
-		Scanner reader_field = new Scanner(file_field);
-		Scanner reader_catnip = new Scanner(file_catnip);
-		Scanner reader_data = new Scanner(file_data);
-		
-		int i = 0;
-		while(reader_field.hasNextLine()) {
-			String string = reader_field.nextLine().trim();
-			for (int j = 0; j < string.length(); j++) {
-					field[i][j] = string.charAt(j);
+		Scanner reader_data;
+		try {
+			reader_data = new Scanner(file_data);
+			while (reader_data.hasNextLine()) {
+				if (lineCounter == 0) {
+					money = Integer.parseInt(reader_data.nextLine().trim());
+				}
+				else {
+					catnipRemaining = Integer.parseInt(reader_data.nextLine().trim());
+				}
+				lineCounter ++;
 			}
-			i ++;
+			reader_data.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		reader_field.close();
-		
+	}
+
+	private void getPlantMonitor() {
+		// TODO Auto-generated method stub
+		File file_catnip = new File("time.txt");
+		Scanner reader_catnip;
+		try {
+			reader_catnip = new Scanner(file_catnip);
+			List<String> line = new ArrayList<String>();
+			while(reader_catnip.hasNextLine()) {
+				String string = reader_catnip.nextLine().trim();
+				String[] filecontent = string.split(" ", 3);
+				long time = Long.parseLong(filecontent[0]);
+				int row = Integer.parseInt(filecontent[1]);
+				int col = Integer.parseInt(filecontent[2]);
+				long duration = System.currentTimeMillis() - time;
+				System.out.println(duration);
+				System.out.println(duration / 1000 / 60);
+				if (duration / 1000 / 60 >= 1 && spring) {
+					grown(row, col);
+					line.add(string);
+				}
+				else if (duration / 1000 / 60 >= 3 && summer) {
+					grown(row, col);
+					line.add(string);
+				}
+				else if (duration / 1000 / 60 >= 1 && fall) {
+					grown(row, col);
+					line.add(string);
+				}
+				else if (duration / 1000 / 60 >= 1 && winter) {
+					grown(row, col);
+					line.add(string);
+				}
+				else {
+					plantCatnip(row, col);
+				}
+			}
+			reader_catnip.close();
+			
+			reader_catnip = new Scanner(file_catnip);
+			FileWriter timeTemp = new FileWriter("timeTemp.txt");
+			boolean flag = false;
+			if (line.size() > 0) {
+				while (reader_catnip.hasNextLine()) {
+					String currentLine = reader_catnip.nextLine().trim();
+					for (String lineToRemove: line) {
+						if (lineToRemove.compareTo(currentLine) == 0) {
+							flag = true;
+						}
+					}
+					if (!flag) {
+						timeTemp.write(currentLine);
+						timeTemp.write("\n");
+					}
+					flag = false;
+				}
+				timeTemp.close();
+				reader_catnip.close();
+			}
+			line.clear();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void getFieldStates() {
+		// TODO Auto-generated method stub
+		File file_field = new File("field.txt");
+		Scanner reader_field;
+		try {
+			reader_field = new Scanner(file_field);
+			int i = 0;
+			while(reader_field.hasNextLine()) {
+				String string = reader_field.nextLine().trim();
+				for (int j = 0; j < string.length(); j++) {
+						field[i][j] = string.charAt(j);
+				}
+				i ++;
+			}
+			reader_field.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void getSeason() {
+		// TODO Auto-generated method stub
 		long elapsed = System.currentTimeMillis();
 		if ((elapsed / 1000 / 60) % 60 >= 0 && (elapsed / 1000 / 60) % 60 < 15) {
 			spring = true;
@@ -116,72 +219,10 @@ public class catModel extends Observable{
 			winter = true;
 			System.out.println("winter");
 		}
-		
-		List<String> line = new ArrayList<String>();
-		while(reader_catnip.hasNextLine()) {
-			String string = reader_catnip.nextLine().trim();
-			String[] filecontent = string.split(" ", 3);
-			long time = Long.parseLong(filecontent[0]);
-			int row = Integer.parseInt(filecontent[1]);
-			int col = Integer.parseInt(filecontent[2]);
-			long duration = System.currentTimeMillis() - time;
-			System.out.println(duration);
-			System.out.println(duration / 1000 / 60);
-			if (duration / 1000 / 60 >= 1 && spring) {
-				grown(row, col);
-				line.add(string);
-			}
-			else if (duration / 1000 / 60 >= 3 && summer) {
-				grown(row, col);
-				line.add(string);
-			}
-			else if (duration / 1000 / 60 >= 1 && fall) {
-				grown(row, col);
-				line.add(string);
-			}
-			else if (duration / 1000 / 60 >= 1 && winter) {
-				grown(row, col);
-				line.add(string);
-			}
-			else {
-				plantCatnip(row, col);
-			}
-		}
-		reader_catnip.close();
-		
-		reader_catnip = new Scanner(file_catnip);
-		FileWriter timeTemp = new FileWriter("timeTemp.txt");
-		boolean flag = false;
-		if (line.size() > 0) {
-			while (reader_catnip.hasNextLine()) {
-				String currentLine = reader_catnip.nextLine().trim();
-				for (String lineToRemove: line) {
-					if (lineToRemove.compareTo(currentLine) == 0) {
-						flag = true;
-					}
-				}
-				if (!flag) {
-					timeTemp.write(currentLine);
-					timeTemp.write("\n");
-				}
-				flag = false;
-			}
-			timeTemp.close();
-			reader_catnip.close();
-		}
-		line.clear();
-		
-		int lineCounter = 0;
-		while (reader_data.hasNextLine()) {
-			if (lineCounter == 0) {
-				money = Integer.parseInt(reader_data.nextLine().trim());
-			}
-			else {
-				catnipRemaining = Integer.parseInt(reader_data.nextLine().trim());
-			}
-			lineCounter ++;
-		}
-		reader_data.close();
+	}
+
+	private void startRun() {
+		// TODO Auto-generated method stub
 	}
 
 	private boolean harvestIsCalled() {

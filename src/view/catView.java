@@ -91,7 +91,7 @@ public class catView extends Application implements Observer{
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
 		return hb_firstRow;
 	}
-
+	
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
