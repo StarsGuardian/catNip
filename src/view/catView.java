@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import controller.catController;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +16,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -51,6 +57,15 @@ public class catView extends Application implements Observer{
 		BorderPane window = new BorderPane();
 		window.setTop(RowsOfBoard());
 		Scene scene = new Scene(window, 750, 600);
+		scene.setOnDragOver(new EventHandler<DragEvent>() {
+
+			@Override
+			public void handle(DragEvent event) {
+				// TODO Auto-generated method stub
+				event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+				event.consume();
+			}
+		});
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
@@ -100,6 +115,7 @@ public class catView extends Application implements Observer{
 			hb_grass.setMargin(showGrass, new Insets(20,20,20,40));
 			hb_seed.getChildren().add(showSeeds);
 			hb_seed.setMargin(showSeeds, new Insets(20,20,20,40));
+			seedDrag(showSeeds);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -136,22 +152,53 @@ public class catView extends Application implements Observer{
 		HBox hb_thirdRow = new HBox();
 		GridPane grid = new GridPane();
 		grid.setGridLinesVisible(false);
+		grid.setHgap(20);
+		grid.setVgap(20);
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				StackPane stack = new StackPane();
 				FileInputStream blank = new FileInputStream("src/plants.jpg");
 				Image slot = new Image(blank);
-				ImageView image = new ImageView(slot);
-				imageBoard[i][j] = image;
-				stack.getChildren().add(image);
-				stack.setMargin(image, new Insets(10,10,10,10));
-				grid.add(stack, j, i);
+				imageBoard[i][j] = new ImageView();
+				imageBoard[i][j].setImage(slot);
+				int row = i, col = j;
+				grid.add(imageBoard[i][j], j, i);
+				imageBoard[i][j].setOnDragDropped(new EventHandler<DragEvent>() {
+
+					@Override
+					public void handle(DragEvent event) {
+						// TODO Auto-generated method stub
+						boolean success = false;
+						Dragboard db = event.getDragboard();
+						if (db.hasImage()) {
+							imageBoard[row][col].setImage(db.getImage());
+							success = true;
+						}
+						event.setDropCompleted(success);
+						event.consume();
+					}
+				});
 			}
 		}
 		hb_thirdRow.getChildren().addAll(grid);
 		hb_thirdRow.setMargin(grid, new Insets(20,20,20,20));
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_thirdRow);
 		return gameBoard;
+	}
+
+	private void seedDrag(ImageView seed) {
+		// TODO Auto-generated method stub
+		seed.setOnDragDetected(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				// TODO Auto-generated method stub
+				Dragboard db = seed.startDragAndDrop(TransferMode.ANY);
+				ClipboardContent content = new ClipboardContent();
+				content.putImage(seed.getImage());
+				db.setContent(content);
+				event.consume();
+			}
+		});
 	}
 
 	/**

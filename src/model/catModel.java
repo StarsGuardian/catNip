@@ -210,7 +210,7 @@ public class catModel extends Observable{
 			winter = false;
 			System.out.println("fall");
 		}
-		else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 < 59) {
+		else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
 			spring = false;
 			summer = false;
 			fall = false;
