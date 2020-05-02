@@ -12,7 +12,8 @@ import java.util.Scanner;
 import view.catView;
 
 /**
- * This class is model
+ * This class is model, all the methods inside this class
+ * control the field
  * @author ianfang
  *
  */ 
@@ -54,8 +55,8 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This private method reads three file to retrive
-	 * the game state
+	 * This private method calls three functions to retrive three
+	 * different parts of the game state
 	 * @throws IOException
 	 */
 	private void RetriveState() throws IOException {
@@ -65,6 +66,10 @@ public class catModel extends Observable{
 		getMoneyNRemaining();
 	}
 	
+	/**
+	 * this method reads data.txt which contains money and remaining catnip
+	 * information
+	 */
 	private void getMoneyNRemaining() {
 		// TODO Auto-generated method stub
 		int lineCounter = 0;
@@ -87,7 +92,14 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * This method reads time.txt file which contains the state and plant state of
+	 * each field slot and the coordinates of each slot
+	 * If harvest is not called, then grown plant will not be removed
+	 * If harvest is called, harvested plant information will be removed from
+	 * the time.txt file which allows user to place a new seed on empty field
+	 */
 	private void getPlantMonitor() {
 		// TODO Auto-generated method stub
 		File file_catnip = new File("time.txt");
@@ -102,9 +114,11 @@ public class catModel extends Observable{
 				int row = Integer.parseInt(filecontent[1]);
 				int col = Integer.parseInt(filecontent[2]);
 				long duration = System.currentTimeMillis() - time;
-				System.out.println(duration);
+				System.out.println("time elapsed for this catnip: ");
 				System.out.println(duration / 1000 / 60);
-				if (duration / 1000 / 60 >= 1 && spring) {
+				//different season have requires different amount of time
+				//for catnip to grow
+				if (duration / 1000 / 60 >= 5 && spring) {
 					grown(row, col);
 					line.add(string);
 				}
@@ -116,7 +130,7 @@ public class catModel extends Observable{
 					grown(row, col);
 					line.add(string);
 				}
-				else if (duration / 1000 / 60 >= 1 && winter) {
+				else if (duration / 1000 / 60 >= 10 && winter) {
 					grown(row, col);
 					line.add(string);
 				}
@@ -126,6 +140,8 @@ public class catModel extends Observable{
 			}
 			reader_catnip.close();
 			
+			//if a slot is havested, remove the slot information from file
+			//and update the file
 			reader_catnip = new Scanner(file_catnip);
 			FileWriter timeTemp = new FileWriter("timeTemp.txt");
 			boolean flag = false;
@@ -155,6 +171,10 @@ public class catModel extends Observable{
 		}
 	}
 
+	/**
+	 * This method reads field.txt, and reset the field to it's latest
+	 * state
+	 */
 	private void getFieldStates() {
 		// TODO Auto-generated method stub
 		File file_field = new File("field.txt");
@@ -175,8 +195,13 @@ public class catModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-
-	private void getSeason() {
+	
+	/**
+	 * This method controls season change
+	 * method uses user local time and divides one hour into
+	 * four parts, each season occupies 15 minutes
+	 */
+	private boolean getSeason() {
 		// TODO Auto-generated method stub
 		long elapsed = System.currentTimeMillis();
 		if ((elapsed / 1000 / 60) % 60 >= 0 && (elapsed / 1000 / 60) % 60 < 15) {
@@ -185,6 +210,7 @@ public class catModel extends Observable{
 			fall = false;
 			winter = false;
 			System.out.println("spring");
+			return spring;
 		}
 		else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
 			spring = false;
@@ -192,6 +218,7 @@ public class catModel extends Observable{
 			fall = false;
 			winter = false;
 			System.out.println("summer");
+			return summer;
 		}
 		else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
 			spring = false;
@@ -199,6 +226,7 @@ public class catModel extends Observable{
 			fall = true;
 			winter = false;
 			System.out.println("fall");
+			return fall;
 		}
 		else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
 			spring = false;
@@ -206,16 +234,22 @@ public class catModel extends Observable{
 			fall = false;
 			winter = true;
 			System.out.println("winter");
+			return winter;
 		}
+		return false;
 	}
 
+	/**
+	 * this method checks if harvest is called
+	 * @return harvestCalled
+	 */
 	private boolean harvestIsCalled() {
 		// TODO Auto-generated method stub
 		return harvestCalled;
 	}
 
 	/**
-	 * This method places one catnip in the target slot 
+	 * This method places one catnip seed in the target slot 
 	 * @param i
 	 * @param j
 	 */
@@ -228,7 +262,7 @@ public class catModel extends Observable{
 	}
 
 	/**
-	 * This private method update all the slots when plant, harvest
+	 * This private method updates all the slots when plant, harvest
 	 * or grown takes place
 	 * @param field
 	 */
@@ -251,7 +285,8 @@ public class catModel extends Observable{
 	}
 	
 	/**
-	 * This private method write the time of each catnip has been placed in the slot
+	 * This private method write the time of each catnip has been placed 
+	 * back to the file and mark the slot
 	 * @param i
 	 * @param j
 	 */
@@ -271,6 +306,8 @@ public class catModel extends Observable{
 	
 	/**
 	 * This method harvest the grown catnip
+	 * update the remaining catnip
+	 * and update the view directly
 	 */
 	public void harvest() {
 		harvestCalled = true;
@@ -292,6 +329,11 @@ public class catModel extends Observable{
 		notifyObservers();
 	}
 	
+	/**
+	 * This method replace the time.txt if harvest is called
+	 * if harvest is called, this method removes all the grown
+	 * catnip info from the file, and keeps those has grown yet
+	 */
 	private void updateTimefile() {
 		// TODO Auto-generated method stub
 		if (harvestIsCalled()) {
@@ -318,6 +360,7 @@ public class catModel extends Observable{
 
 	/**
 	 * This method synchronize money and remaining catnip
+	 * update newest money and remaining catnip to file
 	 */
 	private void syncMoneyNip() {
 		// TODO Auto-generated method stub
@@ -386,20 +429,33 @@ public class catModel extends Observable{
 		//catnipRemaining will be deducted by 5 per minute
 	}
 	
+	/**
+	 * this method returns the remaining catnip
+	 * @return catnipRemaining
+	 */
 	public int getCatNipRemaining() {
 		return catnipRemaining;
 	}
 	
+	/**
+	 * this method returns the legacy amount
+	 * @return legacy
+	 */
 	public int getLegacy() {
 		return legacy;
 	}
 	
+	/**
+	 * this method returns how much money user owns
+	 * @return money
+	 */
 	public int getMoney() {
 		return money;
 	}
 	/**
 	 * This is passed to controller for updating view
-	 * @return
+	 * this method returns the newest model state
+	 * @return field
 	 */
 	public char[][] getModel(){
 		return field;

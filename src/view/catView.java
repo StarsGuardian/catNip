@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.sun.prism.paint.Color;
+
 import controller.catController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -24,41 +26,49 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import model.catModel;
 
 /**
- * This class is View
+ * This class is catView, all the methods included in this class
+ * creates the game board for user
  * @author ianfang
  *
  */
 public class catView extends Application implements Observer{
 	private catController controller;
 	private ImageView[][] imageBoard;
-	private catModel model;
 	
-	
+	/**
+	 * For test purpose
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
 	
 	/**
 	 * This displays game board
+	 * imageBoard is a 2D array which contains ImageView object in each slot
+	 * This game board is a borderpane contains a vbox which has three hbox in it
+	 * first hbox holds money, catnipremaining and seed picture, as well as collect
+	 * cancel button
+	 * second hbox holds cat image, third hbox holds gridpane with 100 ImageView object
+	 * inside the gridpane
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
-		controller = new catController(this);
-		imageBoard = new ImageView[10][10];
-		primaryStage.setTitle("Katten Idle Game");
-		BorderPane window = new BorderPane();
-		window.setTop(RowsOfBoard());
-		Scene scene = new Scene(window, 750, 600);
+		controller = new catController(this);	//Initialize controller and pass view as a parameter
+		imageBoard = new ImageView[10][10];	//Initialize imageBoard 2D array which holds 100 ImageView object
+		primaryStage.setTitle("Katten Idle Game");	//Set window name
+		BorderPane window = new BorderPane();	//window is BorderPane	
+		window.setTop(RowsOfBoard());	//vbox is set at the top of borderpane
+		window.setStyle("-fx-background-color:white");	//set background color to white
+		Scene scene = new Scene(window, 750, 600);	
+		//enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
 			@Override
@@ -68,35 +78,36 @@ public class catView extends Application implements Observer{
 				event.consume();
 			}
 		});
-		DrawBoard();
+		DrawBoard();	//support background running
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 	
 	/**
 	 * This function divided the game board into three rows
-	 * Then use VBox to display these rows
-	 * @return
+	 * each row is contained by a hbox
+	 * all three hboxes are wrapped into the vbox
+	 * @return vbox
 	 * @throws FileNotFoundException
 	 */
 	@SuppressWarnings("static-access")
 	private VBox RowsOfBoard() throws FileNotFoundException {
 		// TODO Auto-generated method stub
-		VBox gameBoard = new VBox();
-		HBox hb_firstRow = new HBox();
-		HBox hb_money = new HBox();
-		HBox hb_grass = new HBox();
-		HBox hb_seed = new HBox();
-		HBox hb_button = new HBox();
-		Label totalMoney = new Label();
-		Label catNip = new Label();
-		FileInputStream moneyBag;
+		VBox gameBoard = new VBox();	//outter vbox
+		HBox hb_firstRow = new HBox();	//first hbox
+		HBox hb_money = new HBox();	//hbox inside first hbox contains moneybag image
+		HBox hb_grass = new HBox();	//hbox inside first hbox contains catnip image
+		HBox hb_seed = new HBox();	//hbox inside first hbox contains seed image
+		HBox hb_button = new HBox();	//hbox inside first hbox contains two buttons
+		Label totalMoney = new Label();	//label displays total amount of money
+		Label catNip = new Label();	//label displays remaining catnip
+		FileInputStream moneyBag;	
 		FileInputStream grass;
 		FileInputStream seeds;
 		try {
-			moneyBag = new FileInputStream("src/money.jpg");
-			grass = new FileInputStream("src/grass.jpg");
-			seeds = new FileInputStream("src/seed.jpg");
+			moneyBag = new FileInputStream("src/money.jpg");	//get money image
+			grass = new FileInputStream("src/grass.jpg");	//get catnip image
+			seeds = new FileInputStream("src/seed.jpg");	//get seed image
 			Image money = new Image(moneyBag);
 			Image grassImage = new Image(grass);
 			Image seedsImage = new Image(seeds);
@@ -106,10 +117,10 @@ public class catView extends Application implements Observer{
 			showMoney.setImage(money);
 			showGrass.setImage(grassImage);
 			showSeeds.setImage(seedsImage);
-			totalMoney.setFont(Font.font ("Verdana", 15));
-			totalMoney.setText(String.valueOf(controller.getMoney()));
+			totalMoney.setFont(Font.font ("Verdana", 15));	//set font
+			totalMoney.setText(String.valueOf(controller.getMoney()));	//get label content
 			catNip.setFont(Font.font ("Verdana", 15));
-			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
+			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));	//get label content
 			hb_money.getChildren().addAll(showMoney, totalMoney);
 			hb_money.setAlignment(Pos.CENTER);
 			hb_money.setMargin(showMoney, new Insets(20,20,20,20));
@@ -118,16 +129,19 @@ public class catView extends Application implements Observer{
 			hb_grass.setMargin(showGrass, new Insets(20,20,20,40));
 			hb_seed.getChildren().add(showSeeds);
 			hb_seed.setMargin(showSeeds, new Insets(20,20,20,40));
-			seedDrag(showSeeds);
+			seedDrag(showSeeds);	//set drag on seed image
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//set click event on button collect
 		Button collect = new Button("Collect");
 		collect.setOnMouseClicked((event) -> {
 			controller.harvest();
+			//update the remaining label
 			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 		});
+		//set click event on cancel button
 		Button sell = new Button("  Sell  ");
 		sell.setOnMouseClicked((event) -> {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
@@ -139,11 +153,12 @@ public class catView extends Application implements Observer{
 		hb_button.setMargin(sell, new Insets(20,20,20,20));
 		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, hb_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
+		//second hbox for second row
 		HBox hb_secondRow = new HBox();
 		FileInputStream getCat;
 		HBox hb_cat = new HBox();
 		try {
-			getCat = new FileInputStream("src/cat.jpg");
+			getCat = new FileInputStream("src/cat.jpg");	//get cat image
 			Image catImage = new Image(getCat);
 			ImageView cat = new ImageView(catImage);
 			hb_cat.getChildren().add(cat);
@@ -152,8 +167,9 @@ public class catView extends Application implements Observer{
 			e.printStackTrace();
 		}
 		hb_secondRow.getChildren().addAll(hb_cat);
+		//third hbox for third row
 		HBox hb_thirdRow = new HBox();
-		GridPane grid = new GridPane();
+		GridPane grid = new GridPane();	//gridpane for the field
 		grid.setGridLinesVisible(false);
 		grid.setHgap(20);
 		grid.setVgap(20);
@@ -164,7 +180,8 @@ public class catView extends Application implements Observer{
 				imageBoard[i][j] = new ImageView();
 				imageBoard[i][j].setImage(slot);
 				int row = i, col = j;
-				grid.add(imageBoard[i][j], j, i);
+				grid.add(imageBoard[i][j], j, i);	//each slot is an imageview object
+				//set drag drop event on imageview object inside gridpane
 				imageBoard[i][j].setOnDragDropped(new EventHandler<DragEvent>() {
 
 					@Override
@@ -185,10 +202,12 @@ public class catView extends Application implements Observer{
 		}
 		hb_thirdRow.getChildren().addAll(grid);
 		hb_thirdRow.setMargin(grid, new Insets(20,20,20,20));
+		//adding all three hbox into vbox
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_thirdRow);
 		return gameBoard;
 	}
 
+	//set drag event on seed image
 	private void seedDrag(ImageView seed) {
 		// TODO Auto-generated method stub
 		seed.setOnDragDetected(new EventHandler<MouseEvent>() {
@@ -206,14 +225,18 @@ public class catView extends Application implements Observer{
 	}
 
 	/**
-	 * Observable
+	 * This method will be called by model if any update was made
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		DrawBoard();
 	}
-
+	
+	/**
+	 * This method will re-draw the gridpane to display the latest
+	 * update
+	 */
 	private void DrawBoard() {
 		// TODO Auto-generated method stub
 		char[][] newboard = controller.getNewFieldState();
@@ -248,6 +271,7 @@ public class catView extends Application implements Observer{
 
 /**
  * This is the pop up window class
+ * This will be called if user wants to sell
  * @author ianfang
  *
  */
