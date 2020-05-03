@@ -9,6 +9,7 @@ import com.sun.prism.paint.Color;
 
 import controller.catController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -41,6 +42,7 @@ import model.catModel;
 public class catView extends Application implements Observer {
 	private catController controller;
 	private ImageView[][] imageBoard;
+	private Label season;
 
 	/**
 	 * For test purpose
@@ -99,7 +101,7 @@ public class catView extends Application implements Observer {
 		HBox hb_grass = new HBox(); // hbox inside first hbox contains catnip image
 		HBox hb_seed = new HBox(); // hbox inside first hbox contains seed image
 		HBox hb_button_1 = new HBox(); // hbox_1 inside first hbox contains two buttons, collect and sell
-		HBox hb_button_2 = new HBox();	//hbox inside first hbox contains two buttons, speed and topup
+		HBox hb_button_2 = new HBox(); // hbox inside first hbox contains two buttons, speed and topup
 		VBox all_button = new VBox();
 		Label totalMoney = new Label(); // label displays total amount of money
 		Label catNip = new Label(); // label displays remaining catnip
@@ -156,7 +158,7 @@ public class catView extends Application implements Observer {
 		hb_button_1.setMargin(sell, new Insets(20, 20, 20, 20));
 		Button speed = new Button(" Speed ");
 		speed.setOnMouseClicked((event) -> {
-			
+
 		});
 		Button TopUp = new Button("TopUp");
 		TopUp.setOnMouseClicked((event) -> {
@@ -225,11 +227,11 @@ public class catView extends Application implements Observer {
 		hb_thirdRow.getChildren().addAll(grid);
 		hb_thirdRow.setMargin(grid, new Insets(10, 20, 20, 20));
 		HBox hb_fourthRow = new HBox();
-		Label season = new Label();
+		season = new Label();
 		season.setText("Current Season:	" + controller.getSeason());
 		season.setFont(Font.font("Verdana", 15));
 		hb_fourthRow.getChildren().add(season);
-		hb_fourthRow.setMargin(season, new Insets(10,20,0,20));
+		hb_fourthRow.setMargin(season, new Insets(10, 20, 0, 20));
 		// adding all three hbox into vbox
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow);
 		return gameBoard;
@@ -259,6 +261,15 @@ public class catView extends Application implements Observer {
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		DrawBoard();
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				season.setText("Current Season:	" + controller.getSeason());
+			}
+		});
+		System.out.println("call");
 	}
 
 	/**
@@ -360,7 +371,7 @@ class PopWindow extends Stage {
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
 	public void forTopup() throws FileNotFoundException {
 		FileInputStream payment = new FileInputStream("src/payment.jpg");
@@ -411,8 +422,7 @@ class PopWindow extends Stage {
 			if (enter_name.getText().compareTo("") == 0 || enter.getText().compareTo("") == 0
 					|| enter_cvv.getText().compareTo("") == 0 || enter_date.getText().compareTo("") == 0) {
 				wrong();
-			}
-			else {
+			} else {
 				valid();
 			}
 			popStage.close();
@@ -427,7 +437,7 @@ class PopWindow extends Stage {
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
 	public void valid() {
 		Button close = new Button("Confirm");
@@ -461,7 +471,7 @@ class PopWindow extends Stage {
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
 	public void wrong() {
 		Button close = new Button("Close");

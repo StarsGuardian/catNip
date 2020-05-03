@@ -4,14 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Scanner;
-
-import javax.management.timer.Timer;
-
-import javafx.animation.Timeline;
+import java.util.*;
 import view.catView;
 
 /**
@@ -41,14 +34,24 @@ public class catModel extends Observable {
 	private boolean harvestCalled = false;
 	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
-	// This contains timer for each slot
-
+	// This contains timertask for each slot
+	private TimerTask[][] slottask;
+	// This contains timetask
+	private TimerTask timetask;
+	// This contains timeline
+	private Timer timer;
+	// this contains flag of initializing
+	private boolean initializing;
+	
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
 	 * file to accomplish background running
 	 */
 	public catModel(catView view) {
 		field = new char[5][10];
+		slottask = new TimerTask[5][10];
+		timer = new Timer();
+		initializing = true;
 		this.addObserver(view);
 		try {
 			RetriveState();
@@ -56,6 +59,21 @@ public class catModel extends Observable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		initializing = false;
+		startTimer();
+	}
+
+	private void startTimer() {
+		// TODO Auto-generated method stub
+		timetask = new TimerTask() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				getSeason();
+			}
+		};
+		timer.schedule(timetask, 1000, 1000);
 	}
 
 	/**
@@ -65,8 +83,8 @@ public class catModel extends Observable {
 	 * @throws IOException
 	 */
 	private void RetriveState() throws IOException {
-		getFieldStates();
 		getSeason();
+		getFieldStates();
 		getPlantMonitor();
 		getMoneyNRemaining();
 	}
@@ -199,7 +217,7 @@ public class catModel extends Observable {
 	 * This method controls season change method uses user local time and divides
 	 * one hour into four parts, each season occupies 15 minutes
 	 */
-	private boolean getSeason() {
+	public void getSeason() {
 		// TODO Auto-generated method stub
 		long elapsed = System.currentTimeMillis();
 		if ((elapsed / 1000 / 60) % 60 >= 0 && (elapsed / 1000 / 60) % 60 < 15) {
@@ -208,30 +226,29 @@ public class catModel extends Observable {
 			fall = false;
 			winter = false;
 			System.out.println("spring");
-			return spring;
 		} else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
 			spring = false;
 			summer = true;
 			fall = false;
 			winter = false;
 			System.out.println("summer");
-			return summer;
 		} else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
 			spring = false;
 			summer = false;
 			fall = true;
 			winter = false;
 			System.out.println("fall");
-			return fall;
 		} else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
 			spring = false;
 			summer = false;
 			fall = false;
 			winter = true;
 			System.out.println("winter");
-			return winter;
 		}
-		return false;
+		if (initializing != true) {
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -386,6 +403,10 @@ public class catModel extends Observable {
 		if (field[i][j] == seed) {
 			field[i][j] = grown;
 			updateField(field);
+			if (initializing != true) {
+				setChanged();
+				notifyObservers();
+			}
 		}
 	}
 
