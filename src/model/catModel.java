@@ -79,6 +79,9 @@ public class catModel extends Observable {
 		timer_season.schedule(timetask, 1000, 1000); //The task will execute after one second later, then repeat per second.
 	}
 	
+	/**
+	 * The player quits the client, so all of TimerTask(s) should be terminated.
+	 */
 	public void exitGame() {
 		timer_season.cancel();
 		timer_slot.cancel();
