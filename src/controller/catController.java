@@ -123,4 +123,11 @@ public class catController {
 		model.setMoney(amount);
 		model.syncMoneyNip();
 	}
+	
+	/**
+	 * exit the game
+	 */
+	public void exitGame() {
+		model.exitGame();
+	}
 }

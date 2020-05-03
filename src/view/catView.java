@@ -67,9 +67,9 @@ public class catView extends Application implements Observer {
 		imageBoard = new ImageView[10][10]; // Initialize imageBoard 2D array which holds 100 ImageView object
 		primaryStage.setTitle("Katten Idle Game"); // Set window name
 		BorderPane window = new BorderPane(); // window is BorderPane
-		window.setTop(RowsOfBoard()); // vbox is set at the top of borderpane
+		window.setTop(RowsOfBoard(primaryStage)); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 620);
+		Scene scene = new Scene(window, 750, 640);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
@@ -93,7 +93,7 @@ public class catView extends Application implements Observer {
 	 * @throws FileNotFoundException
 	 */
 	@SuppressWarnings("static-access")
-	private VBox RowsOfBoard() throws FileNotFoundException {
+	private VBox RowsOfBoard(Stage primaryStage) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		VBox gameBoard = new VBox(); // outter vbox
 		HBox hb_firstRow = new HBox(); // first hbox
@@ -232,8 +232,14 @@ public class catView extends Application implements Observer {
 		season.setFont(Font.font("Verdana", 15));
 		hb_fourthRow.getChildren().add(season);
 		hb_fourthRow.setMargin(season, new Insets(10, 20, 0, 20));
+		Button exit = new Button("Exit");
+		exit.setOnMouseClicked((event) -> {
+			controller.exitGame();
+			primaryStage.close();
+		});
 		// adding all three hbox into vbox
-		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow);
+		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow, exit);
+		gameBoard.setMargin(exit, new Insets(0,20,20,20));
 		return gameBoard;
 	}
 
@@ -269,7 +275,6 @@ public class catView extends Application implements Observer {
 				season.setText("Current Season:	" + controller.getSeason());
 			}
 		});
-		System.out.println("call");
 	}
 
 	/**

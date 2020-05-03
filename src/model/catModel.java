@@ -35,22 +35,25 @@ public class catModel extends Observable {
 	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
 	// This contains timertask for each slot
-	private TimerTask[][] slottask;
+	private List<TimerTask> slottask;
 	// This contains timetask
 	private TimerTask timetask;
 	// This contains timeline
-	private Timer timer;
+	private Timer timer_season;
 	// this contains flag of initializing
 	private boolean initializing;
-	
+	// this contains timer for field
+	private Timer timer_slot;
+
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
 	 * file to accomplish background running
 	 */
 	public catModel(catView view) {
 		field = new char[5][10];
-		slottask = new TimerTask[5][10];
-		timer = new Timer();
+		slottask = new ArrayList<TimerTask>();
+		timer_season = new Timer();
+		timer_slot = new Timer();
 		initializing = true;
 		this.addObserver(view);
 		try {
@@ -73,7 +76,12 @@ public class catModel extends Observable {
 				getSeason();
 			}
 		};
-		timer.schedule(timetask, 1000, 1000);
+		timer_season.schedule(timetask, 1000, 1000);
+	}
+	
+	public void exitGame() {
+		timer_season.cancel();
+		timer_slot.cancel();
 	}
 
 	/**
@@ -84,8 +92,13 @@ public class catModel extends Observable {
 	 */
 	private void RetriveState() throws IOException {
 		getSeason();
-		getFieldStates();
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 10; j++) {
+				field[i][j] = empty;
+			}
+		}
 		getPlantMonitor();
+		getFieldStates();
 		getMoneyNRemaining();
 	}
 
@@ -202,7 +215,9 @@ public class catModel extends Observable {
 			while (reader_field.hasNextLine()) {
 				String string = reader_field.nextLine().trim();
 				for (int j = 0; j < string.length(); j++) {
-					field[i][j] = string.charAt(j);
+					if (string.charAt(i) == empty) {
+						field[i][j] = string.charAt(j);
+					}
 				}
 				i++;
 			}
@@ -272,7 +287,83 @@ public class catModel extends Observable {
 			field[i][j] = seed;
 			updatePlantTime(i, j);
 			updateField(field);
-			Timer tick = new Timer();
+			if (spring) {
+				TimerTask task = new TimerTask() {
+					int sec = 300;
+					boolean changed = false;
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if (summer && !changed) {
+							sec -= 120;
+							changed = true;
+						}
+						sec--;
+						if (sec <= 0) {
+							grown(i, j);
+							this.cancel();
+						}
+					}
+				};
+				timer_slot.schedule(task, 1000, 1000);
+			} else if (summer) {
+				TimerTask task = new TimerTask() {
+					int sec = 180;
+					boolean changed = false;
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if (fall && !changed) {
+							sec -= 120;
+							changed = true;
+						}
+						sec--;
+						if (sec <= 0) {
+							grown(i, j);
+							this.cancel();
+						}
+					}
+				};
+				timer_slot.schedule(task, 1000, 1000);
+			} else if (fall) {
+				TimerTask task = new TimerTask() {
+					int sec = 60;
+					boolean changed = false;
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if (winter && !changed) {
+							sec += 540;
+							changed = true;
+						}
+						sec--;
+						if (sec <= 0) {
+							grown(i, j);
+							this.cancel();
+						}
+					}
+				};
+				timer_slot.schedule(task, 1000, 1000);
+			} else if (winter) {
+				TimerTask task = new TimerTask() {
+					int sec = 600;
+					boolean changed = false;
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						if (spring && !changed) {
+							sec -= 300;
+							changed = true;
+						}
+						sec--;
+						if (sec <= 0) {
+							grown(i, j);
+							this.cancel();
+						}
+					}
+				};
+				timer_slot.schedule(task, 1000, 1000);
+			}
 		}
 	}
 
@@ -400,13 +491,11 @@ public class catModel extends Observable {
 	 * @param j
 	 */
 	public void grown(int i, int j) {
-		if (field[i][j] == seed) {
-			field[i][j] = grown;
-			updateField(field);
-			if (initializing != true) {
-				setChanged();
-				notifyObservers();
-			}
+		field[i][j] = grown;
+		updateField(field);
+		if (initializing != true) {
+			setChanged();
+			notifyObservers();
 		}
 	}
 
@@ -487,26 +576,24 @@ public class catModel extends Observable {
 	public char[][] getModel() {
 		return field;
 	}
-	
+
 	/**
 	 * This method retrive the current season
+	 * 
 	 * @return one of the four seasons
 	 */
 	public String returnSeason() {
 		if (spring) {
 			return "Spring";
-		}
-		else if (summer) {
+		} else if (summer) {
 			return "Summer";
-		}
-		else if (fall) {
+		} else if (fall) {
 			return "Fall";
-		}
-		else {
+		} else {
 			return "Winter";
 		}
 	}
-	
+
 	public void setMoney(int amount) {
 		money += amount;
 	}
