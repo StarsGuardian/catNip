@@ -289,6 +289,16 @@ public class catView extends Application implements Observer {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				} else {
+					FileInputStream update;
+					try {
+						update = new FileInputStream("src/soil.jpg");
+						Image slot = new Image(update);
+						imageBoard[i][j].setImage(slot);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}
