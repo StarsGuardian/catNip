@@ -108,7 +108,19 @@ public class catController {
 		return model.getLegacy();
 	}
 	
+	/**
+	 * this method gets current season
+	 * @return
+	 */
 	public String getSeason() {
 		return model.returnSeason();
+	}
+	
+	/**
+	 * this method updates money
+	 */
+	public void updateMoney(int amount) {
+		model.setMoney(amount);
+		model.syncMoneyNip();
 	}
 }

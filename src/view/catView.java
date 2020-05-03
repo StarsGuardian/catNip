@@ -9,6 +9,7 @@ import com.sun.prism.paint.Color;
 
 import controller.catController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -41,6 +42,7 @@ import model.catModel;
 public class catView extends Application implements Observer {
 	private catController controller;
 	private ImageView[][] imageBoard;
+	private Label season;
 
 	/**
 	 * For test purpose
@@ -67,7 +69,7 @@ public class catView extends Application implements Observer {
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard()); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 700);
+		Scene scene = new Scene(window, 750, 620);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
@@ -99,7 +101,7 @@ public class catView extends Application implements Observer {
 		HBox hb_grass = new HBox(); // hbox inside first hbox contains catnip image
 		HBox hb_seed = new HBox(); // hbox inside first hbox contains seed image
 		HBox hb_button_1 = new HBox(); // hbox_1 inside first hbox contains two buttons, collect and sell
-		HBox hb_button_2 = new HBox();	//hbox inside first hbox contains two buttons, speed and topup
+		HBox hb_button_2 = new HBox(); // hbox inside first hbox contains two buttons, speed and topup
 		VBox all_button = new VBox();
 		Label totalMoney = new Label(); // label displays total amount of money
 		Label catNip = new Label(); // label displays remaining catnip
@@ -156,12 +158,17 @@ public class catView extends Application implements Observer {
 		hb_button_1.setMargin(sell, new Insets(20, 20, 20, 20));
 		Button speed = new Button(" Speed ");
 		speed.setOnMouseClicked((event) -> {
-			
+
 		});
 		Button TopUp = new Button("TopUp");
 		TopUp.setOnMouseClicked((event) -> {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
-			pop.forTopup();
+			try {
+				pop.forTopup();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 		hb_button_2.getChildren().addAll(speed, TopUp);
 		hb_button_2.setAlignment(Pos.CENTER);
@@ -192,7 +199,7 @@ public class catView extends Application implements Observer {
 		grid.setVgap(20);
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
-				FileInputStream blank = new FileInputStream("src/plants.jpg");
+				FileInputStream blank = new FileInputStream("src/soil.jpg");
 				Image slot = new Image(blank);
 				imageBoard[i][j] = new ImageView();
 				imageBoard[i][j].setImage(slot);
@@ -220,11 +227,11 @@ public class catView extends Application implements Observer {
 		hb_thirdRow.getChildren().addAll(grid);
 		hb_thirdRow.setMargin(grid, new Insets(10, 20, 20, 20));
 		HBox hb_fourthRow = new HBox();
-		Label season = new Label();
+		season = new Label();
 		season.setText("Current Season:	" + controller.getSeason());
 		season.setFont(Font.font("Verdana", 15));
 		hb_fourthRow.getChildren().add(season);
-		hb_fourthRow.setMargin(season, new Insets(10,20,0,20));
+		hb_fourthRow.setMargin(season, new Insets(10, 20, 0, 20));
 		// adding all three hbox into vbox
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow);
 		return gameBoard;
@@ -254,6 +261,15 @@ public class catView extends Application implements Observer {
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		DrawBoard();
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				season.setText("Current Season:	" + controller.getSeason());
+			}
+		});
+		System.out.println("call");
 	}
 
 	/**
@@ -278,6 +294,16 @@ public class catView extends Application implements Observer {
 					FileInputStream update;
 					try {
 						update = new FileInputStream("src/seed.jpg");
+						Image slot = new Image(update);
+						imageBoard[i][j].setImage(slot);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					FileInputStream update;
+					try {
+						update = new FileInputStream("src/soil.jpg");
 						Image slot = new Image(update);
 						imageBoard[i][j].setImage(slot);
 					} catch (FileNotFoundException e) {
@@ -319,6 +345,7 @@ class PopWindow extends Stage {
 		enter.setPromptText("Enter number greater than 10");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount, enter);
@@ -344,9 +371,12 @@ class PopWindow extends Stage {
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
-	public void forTopup() {
+	public void forTopup() throws FileNotFoundException {
+		FileInputStream payment = new FileInputStream("src/payment.jpg");
+		Image pay = new Image(payment);
+		ImageView payments = new ImageView(pay);
 		Button confirm = new Button("Confirm");
 		Button cancel = new Button("Cancel");
 		Label card = new Label("Card Number: ");
@@ -365,8 +395,8 @@ class PopWindow extends Stage {
 		enter_name.setPromptText("Enter holder's name");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
-		Scene newScene = new Scene(popup, 350, 300);
+		popup.setStyle("-fx-background-color:white");
+		Scene newScene = new Scene(popup, 350, 285);
 		HBox labelNtext = new HBox();
 		HBox date = new HBox();
 		HBox name = new HBox();
@@ -392,9 +422,8 @@ class PopWindow extends Stage {
 			if (enter_name.getText().compareTo("") == 0 || enter.getText().compareTo("") == 0
 					|| enter_cvv.getText().compareTo("") == 0 || enter_date.getText().compareTo("") == 0) {
 				wrong();
-			}
-			else {
-				invalid();
+			} else {
+				valid();
 			}
 			popStage.close();
 		});
@@ -402,31 +431,39 @@ class PopWindow extends Stage {
 			popStage.close();
 		});
 		VBox setAll = new VBox();
-		setAll.getChildren().addAll(labelNtext, date, name, buttons);
+		setAll.getChildren().addAll(labelNtext, date, name, buttons, payments);
 		setAll.setAlignment(Pos.CENTER_LEFT);
 		popup.add(setAll, 3, 3);
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
-	public void invalid() {
-		Button close = new Button("Close");
-		Label amount = new Label("Card Declined, Please contact the card issuer.");
+	public void valid() {
+		Button close = new Button("Confirm");
+		Label amount = new Label("Enter amount of purchase: ");
+		TextField enter = new TextField();
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
-		labelNtext.getChildren().addAll(amount);
-		labelNtext.setMargin(amount, new Insets(30, 30, 20, 50));
+		labelNtext.getChildren().addAll(amount, enter);
+		labelNtext.setMargin(amount, new Insets(20, 20, 20, 10));
 		labelNtext.setAlignment(Pos.CENTER);
 		HBox buttons = new HBox();
 		buttons.getChildren().addAll(close);
 		buttons.setAlignment(Pos.CENTER);
 		buttons.setMargin(close, new Insets(0, 30, 30, 60));
 		close.setOnMouseClicked((event) -> {
-			popStage.close();
+			try {
+				int number = Integer.parseInt(enter.getText());
+				newMoney.setText(String.valueOf(number + control.getMoney()));
+				control.updateMoney(number);
+				popStage.close();
+			} catch (NumberFormatException e) {
+				enter.setText("");
+			}
 		});
 		VBox setAll = new VBox();
 		setAll.getChildren().addAll(labelNtext, buttons);
@@ -434,14 +471,14 @@ class PopWindow extends Stage {
 		popStage.setScene(newScene);
 		popStage.show();
 	}
-	
+
 	@SuppressWarnings("static-access")
 	public void wrong() {
 		Button close = new Button("Close");
 		Label amount = new Label("Please fill out all the required information");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount);
