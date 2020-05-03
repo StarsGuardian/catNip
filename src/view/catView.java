@@ -413,7 +413,7 @@ class PopWindow extends Stage {
 				wrong();
 			}
 			else {
-				invalid();
+				valid();
 			}
 			popStage.close();
 		});
@@ -429,23 +429,31 @@ class PopWindow extends Stage {
 	}
 	
 	@SuppressWarnings("static-access")
-	public void invalid() {
-		Button close = new Button("Close");
-		Label amount = new Label("Card Declined, Please contact the card issuer.");
+	public void valid() {
+		Button close = new Button("Confirm");
+		Label amount = new Label("Enter amount of purchase: ");
+		TextField enter = new TextField();
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
 		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
-		labelNtext.getChildren().addAll(amount);
-		labelNtext.setMargin(amount, new Insets(30, 30, 20, 50));
+		labelNtext.getChildren().addAll(amount, enter);
+		labelNtext.setMargin(amount, new Insets(20, 20, 20, 10));
 		labelNtext.setAlignment(Pos.CENTER);
 		HBox buttons = new HBox();
 		buttons.getChildren().addAll(close);
 		buttons.setAlignment(Pos.CENTER);
 		buttons.setMargin(close, new Insets(0, 30, 30, 60));
 		close.setOnMouseClicked((event) -> {
-			popStage.close();
+			try {
+				int number = Integer.parseInt(enter.getText());
+				newMoney.setText(String.valueOf(number + control.getMoney()));
+				control.updateMoney(number);
+				popStage.close();
+			} catch (NumberFormatException e) {
+				enter.setText("");
+			}
 		});
 		VBox setAll = new VBox();
 		setAll.getChildren().addAll(labelNtext, buttons);

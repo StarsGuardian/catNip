@@ -42,9 +42,6 @@ public class catModel extends Observable {
 	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
 	// This contains timer for each slot
-	private Timer[][] ticktok;
-	// This is timeline
-	private Timeline timeline;
 
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
@@ -55,7 +52,6 @@ public class catModel extends Observable {
 		this.addObserver(view);
 		try {
 			RetriveState();
-			timeline = new Timeline();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -366,7 +362,7 @@ public class catModel extends Observable {
 	 * This method synchronize money and remaining catnip update newest money and
 	 * remaining catnip to file
 	 */
-	private void syncMoneyNip() {
+	public void syncMoneyNip() {
 		// TODO Auto-generated method stub
 		FileWriter nipNmoney;
 		try {
@@ -488,6 +484,10 @@ public class catModel extends Observable {
 		else {
 			return "Winter";
 		}
+	}
+	
+	public void setMoney(int amount) {
+		money += amount;
 	}
 
 }
