@@ -76,7 +76,7 @@ public class catModel extends Observable {
 				getSeason();
 			}
 		};
-		timer_season.schedule(timetask, 1000, 1000);
+		timer_season.schedule(timetask, 1000, 1000); //The task will execute after one second later, then repeat per second.
 	}
 	
 	public void exitGame() {
