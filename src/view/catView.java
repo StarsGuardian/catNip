@@ -67,7 +67,7 @@ public class catView extends Application implements Observer {
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard()); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 600);
+		Scene scene = new Scene(window, 750, 700);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
@@ -98,7 +98,9 @@ public class catView extends Application implements Observer {
 		HBox hb_money = new HBox(); // hbox inside first hbox contains moneybag image
 		HBox hb_grass = new HBox(); // hbox inside first hbox contains catnip image
 		HBox hb_seed = new HBox(); // hbox inside first hbox contains seed image
-		HBox hb_button = new HBox(); // hbox inside first hbox contains two buttons
+		HBox hb_button_1 = new HBox(); // hbox_1 inside first hbox contains two buttons, collect and sell
+		HBox hb_button_2 = new HBox();	//hbox inside first hbox contains two buttons, speed and topup
+		VBox all_button = new VBox();
 		Label totalMoney = new Label(); // label displays total amount of money
 		Label catNip = new Label(); // label displays remaining catnip
 		FileInputStream moneyBag;
@@ -106,7 +108,7 @@ public class catView extends Application implements Observer {
 		FileInputStream seeds;
 		try {
 			moneyBag = new FileInputStream("src/money.jpg"); // get money image
-			grass = new FileInputStream("src/grass.jpg"); // get catnip image
+			grass = new FileInputStream("src/plants.jpg"); // get catnip image
 			seeds = new FileInputStream("src/seed.jpg"); // get seed image
 			Image money = new Image(moneyBag);
 			Image grassImage = new Image(grass);
@@ -120,17 +122,16 @@ public class catView extends Application implements Observer {
 			totalMoney.setFont(Font.font("Verdana", 15)); // set font
 			totalMoney.setText(String.valueOf(controller.getMoney())); // get label content
 			catNip.setFont(Font.font("Verdana", 15));
-			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy())); // get
-																													// label
-																													// content
+			// get label content
+			catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 			hb_money.getChildren().addAll(showMoney, totalMoney);
 			hb_money.setAlignment(Pos.CENTER);
-			hb_money.setMargin(showMoney, new Insets(20, 20, 20, 20));
+			hb_money.setMargin(showMoney, new Insets(10, 20, 20, 20));
 			hb_grass.getChildren().addAll(showGrass, catNip);
 			hb_grass.setAlignment(Pos.CENTER);
-			hb_grass.setMargin(showGrass, new Insets(20, 20, 20, 40));
+			hb_grass.setMargin(showGrass, new Insets(10, 20, 20, 40));
 			hb_seed.getChildren().add(showSeeds);
-			hb_seed.setMargin(showSeeds, new Insets(20, 20, 20, 40));
+			hb_seed.setMargin(showSeeds, new Insets(30, 20, 20, 40));
 			seedDrag(showSeeds); // set drag on seed image
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -149,11 +150,25 @@ public class catView extends Application implements Observer {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
 			pop.display();
 		});
-		hb_button.getChildren().addAll(collect, sell);
-		hb_button.setAlignment(Pos.CENTER);
-		hb_button.setMargin(collect, new Insets(20, 20, 20, 40));
-		hb_button.setMargin(sell, new Insets(20, 20, 20, 20));
-		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, hb_button);
+		hb_button_1.getChildren().addAll(collect, sell);
+		hb_button_1.setAlignment(Pos.CENTER);
+		hb_button_1.setMargin(collect, new Insets(20, 20, 20, 40));
+		hb_button_1.setMargin(sell, new Insets(20, 20, 20, 20));
+		Button speed = new Button(" Speed ");
+		speed.setOnMouseClicked((event) -> {
+			
+		});
+		Button TopUp = new Button("TopUp");
+		TopUp.setOnMouseClicked((event) -> {
+			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
+			pop.forTopup();
+		});
+		hb_button_2.getChildren().addAll(speed, TopUp);
+		hb_button_2.setAlignment(Pos.CENTER);
+		hb_button_2.setMargin(speed, new Insets(10, 20, 20, 45));
+		hb_button_2.setMargin(TopUp, new Insets(10, 20, 20, 20));
+		all_button.getChildren().addAll(hb_button_1, hb_button_2);
+		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, all_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
 		// second hbox for second row
 		HBox hb_secondRow = new HBox();
@@ -164,7 +179,7 @@ public class catView extends Application implements Observer {
 			Image catImage = new Image(getCat);
 			ImageView cat = new ImageView(catImage);
 			hb_cat.getChildren().add(cat);
-			hb_cat.setMargin(cat, new Insets(20, 20, 20, 20));
+			hb_cat.setMargin(cat, new Insets(10, 20, 20, 20));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -175,7 +190,7 @@ public class catView extends Application implements Observer {
 		grid.setGridLinesVisible(false);
 		grid.setHgap(20);
 		grid.setVgap(20);
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
 				FileInputStream blank = new FileInputStream("src/plants.jpg");
 				Image slot = new Image(blank);
@@ -203,9 +218,15 @@ public class catView extends Application implements Observer {
 			}
 		}
 		hb_thirdRow.getChildren().addAll(grid);
-		hb_thirdRow.setMargin(grid, new Insets(20, 20, 20, 20));
+		hb_thirdRow.setMargin(grid, new Insets(10, 20, 20, 20));
+		HBox hb_fourthRow = new HBox();
+		Label season = new Label();
+		season.setText("Current Season:	" + controller.getSeason());
+		season.setFont(Font.font("Verdana", 15));
+		hb_fourthRow.getChildren().add(season);
+		hb_fourthRow.setMargin(season, new Insets(10,20,0,20));
 		// adding all three hbox into vbox
-		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_thirdRow);
+		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow);
 		return gameBoard;
 	}
 
@@ -241,7 +262,7 @@ public class catView extends Application implements Observer {
 	private void DrawBoard() {
 		// TODO Auto-generated method stub
 		char[][] newboard = controller.getNewFieldState();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
 				if (newboard[i][j] == 'g') {
 					FileInputStream blank;
@@ -295,6 +316,7 @@ class PopWindow extends Stage {
 		Button cancel = new Button("Cancel");
 		Label amount = new Label("Enter amount: ");
 		TextField enter = new TextField();
+		enter.setPromptText("Enter number greater than 10");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
 		Scene newScene = new Scene(popup, 350, 100);
@@ -314,6 +336,122 @@ class PopWindow extends Stage {
 			grass.setText(String.valueOf(control.getCatnip()) + "/" + String.valueOf(control.getLegacy()));
 		});
 		cancel.setOnMouseClicked((event) -> {
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, buttons);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
+	}
+	
+	@SuppressWarnings("static-access")
+	public void forTopup() {
+		Button confirm = new Button("Confirm");
+		Button cancel = new Button("Cancel");
+		Label card = new Label("Card Number: ");
+		Label expire = new Label("Expire Date: ");
+		Label cvv = new Label("CVV: ");
+		Label holder = new Label("Holder's Name: ");
+		TextField enter = new TextField();
+		TextField enter_date = new TextField();
+		TextField enter_cvv = new TextField();
+		TextField enter_name = new TextField();
+		enter_date.setMaxSize(60, 13);
+		enter_cvv.setMaxSize(60, 13);
+		enter_date.setPromptText("MM/YY");
+		enter_cvv.setPromptText("XXX");
+		enter.setPromptText("Enter 16 digits card number");
+		enter_name.setPromptText("Enter holder's name");
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-backgroud-color:white");
+		Scene newScene = new Scene(popup, 350, 300);
+		HBox labelNtext = new HBox();
+		HBox date = new HBox();
+		HBox name = new HBox();
+		labelNtext.getChildren().addAll(card, enter);
+		labelNtext.setMargin(card, new Insets(30, 30, 20, 30));
+		labelNtext.setAlignment(Pos.CENTER_LEFT);
+		date.getChildren().addAll(expire, enter_date, cvv, enter_cvv);
+		date.setMargin(expire, new Insets(0, 20, 20, 30));
+		date.setMargin(enter_date, new Insets(0, 20, 20, 0));
+		date.setMargin(cvv, new Insets(0, 20, 20, 10));
+		date.setMargin(enter_cvv, new Insets(0, 20, 20, 0));
+		date.setAlignment(Pos.CENTER_LEFT);
+		name.getChildren().addAll(holder, enter_name);
+		name.setMargin(holder, new Insets(0, 20, 20, 30));
+		name.setMargin(enter_name, new Insets(0, 20, 20, 0));
+		name.setAlignment(Pos.CENTER_LEFT);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(confirm, cancel);
+		buttons.setMargin(confirm, new Insets(0, 30, 30, 90));
+		buttons.setMargin(cancel, new Insets(0, 30, 30, 0));
+		buttons.setAlignment(Pos.CENTER_LEFT);
+		confirm.setOnMouseClicked((event) -> {
+			if (enter_name.getText().compareTo("") == 0 || enter.getText().compareTo("") == 0
+					|| enter_cvv.getText().compareTo("") == 0 || enter_date.getText().compareTo("") == 0) {
+				wrong();
+			}
+			else {
+				invalid();
+			}
+			popStage.close();
+		});
+		cancel.setOnMouseClicked((event) -> {
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, date, name, buttons);
+		setAll.setAlignment(Pos.CENTER_LEFT);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
+	}
+	
+	@SuppressWarnings("static-access")
+	public void invalid() {
+		Button close = new Button("Close");
+		Label amount = new Label("Card Declined, Please contact the card issuer.");
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-backgroud-color:white");
+		Scene newScene = new Scene(popup, 350, 100);
+		HBox labelNtext = new HBox();
+		labelNtext.getChildren().addAll(amount);
+		labelNtext.setMargin(amount, new Insets(30, 30, 20, 50));
+		labelNtext.setAlignment(Pos.CENTER);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(close);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setMargin(close, new Insets(0, 30, 30, 60));
+		close.setOnMouseClicked((event) -> {
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, buttons);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
+	}
+	
+	@SuppressWarnings("static-access")
+	public void wrong() {
+		Button close = new Button("Close");
+		Label amount = new Label("Please fill out all the required information");
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-backgroud-color:white");
+		Scene newScene = new Scene(popup, 350, 100);
+		HBox labelNtext = new HBox();
+		labelNtext.getChildren().addAll(amount);
+		labelNtext.setMargin(amount, new Insets(30, 30, 20, 60));
+		labelNtext.setAlignment(Pos.CENTER);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(close);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setMargin(close, new Insets(0, 30, 30, 60));
+		close.setOnMouseClicked((event) -> {
 			popStage.close();
 		});
 		VBox setAll = new VBox();

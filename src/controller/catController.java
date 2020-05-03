@@ -107,4 +107,8 @@ public class catController {
 	public int getLegacy() {
 		return model.getLegacy();
 	}
+	
+	public String getSeason() {
+		return model.returnSeason();
+	}
 }

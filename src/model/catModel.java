@@ -44,7 +44,7 @@ public class catModel extends Observable {
 	 * file to accomplish background running
 	 */
 	public catModel(catView view) {
-		field = new char[10][10];
+		field = new char[5][10];
 		this.addObserver(view);
 		try {
 			RetriveState();
@@ -306,7 +306,7 @@ public class catModel extends Observable {
 	 */
 	public void harvest() {
 		harvestCalled = true;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
 				if (field[i][j] == grown) {
 					field[i][j] = empty;
@@ -460,6 +460,25 @@ public class catModel extends Observable {
 	 */
 	public char[][] getModel() {
 		return field;
+	}
+	
+	/**
+	 * This method retrive the current season
+	 * @return one of the four seasons
+	 */
+	public String returnSeason() {
+		if (spring) {
+			return "Spring";
+		}
+		else if (summer) {
+			return "Summer";
+		}
+		else if (fall) {
+			return "Fall";
+		}
+		else {
+			return "Winter";
+		}
 	}
 
 }
