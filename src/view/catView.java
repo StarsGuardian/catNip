@@ -67,7 +67,7 @@ public class catView extends Application implements Observer {
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard()); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 700);
+		Scene scene = new Scene(window, 750, 620);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
@@ -161,7 +161,12 @@ public class catView extends Application implements Observer {
 		Button TopUp = new Button("TopUp");
 		TopUp.setOnMouseClicked((event) -> {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
-			pop.forTopup();
+			try {
+				pop.forTopup();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 		hb_button_2.getChildren().addAll(speed, TopUp);
 		hb_button_2.setAlignment(Pos.CENTER);
@@ -192,7 +197,7 @@ public class catView extends Application implements Observer {
 		grid.setVgap(20);
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 10; j++) {
-				FileInputStream blank = new FileInputStream("src/plants.jpg");
+				FileInputStream blank = new FileInputStream("src/soil.jpg");
 				Image slot = new Image(blank);
 				imageBoard[i][j] = new ImageView();
 				imageBoard[i][j].setImage(slot);
@@ -319,6 +324,7 @@ class PopWindow extends Stage {
 		enter.setPromptText("Enter number greater than 10");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount, enter);
@@ -346,7 +352,10 @@ class PopWindow extends Stage {
 	}
 	
 	@SuppressWarnings("static-access")
-	public void forTopup() {
+	public void forTopup() throws FileNotFoundException {
+		FileInputStream payment = new FileInputStream("src/payment.jpg");
+		Image pay = new Image(payment);
+		ImageView payments = new ImageView(pay);
 		Button confirm = new Button("Confirm");
 		Button cancel = new Button("Cancel");
 		Label card = new Label("Card Number: ");
@@ -365,8 +374,8 @@ class PopWindow extends Stage {
 		enter_name.setPromptText("Enter holder's name");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
-		Scene newScene = new Scene(popup, 350, 300);
+		popup.setStyle("-fx-background-color:white");
+		Scene newScene = new Scene(popup, 350, 285);
 		HBox labelNtext = new HBox();
 		HBox date = new HBox();
 		HBox name = new HBox();
@@ -402,7 +411,7 @@ class PopWindow extends Stage {
 			popStage.close();
 		});
 		VBox setAll = new VBox();
-		setAll.getChildren().addAll(labelNtext, date, name, buttons);
+		setAll.getChildren().addAll(labelNtext, date, name, buttons, payments);
 		setAll.setAlignment(Pos.CENTER_LEFT);
 		popup.add(setAll, 3, 3);
 		popStage.setScene(newScene);
@@ -415,7 +424,7 @@ class PopWindow extends Stage {
 		Label amount = new Label("Card Declined, Please contact the card issuer.");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount);
@@ -441,7 +450,7 @@ class PopWindow extends Stage {
 		Label amount = new Label("Please fill out all the required information");
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
-		popup.setStyle("-fx-backgroud-color:white");
+		popup.setStyle("-fx-background-color:white");
 		Scene newScene = new Scene(popup, 350, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount);

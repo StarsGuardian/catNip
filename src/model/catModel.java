@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Scanner;
 
+import javax.management.timer.Timer;
+
+import javafx.animation.Timeline;
 import view.catView;
 
 /**
@@ -38,6 +41,10 @@ public class catModel extends Observable {
 	private boolean harvestCalled = false;
 	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
+	// This contains timer for each slot
+	private Timer[][] ticktok;
+	// This is timeline
+	private Timeline timeline;
 
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
@@ -48,6 +55,7 @@ public class catModel extends Observable {
 		this.addObserver(view);
 		try {
 			RetriveState();
+			timeline = new Timeline();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -251,6 +259,7 @@ public class catModel extends Observable {
 			field[i][j] = seed;
 			updatePlantTime(i, j);
 			updateField(field);
+			Timer tick = new Timer();
 		}
 	}
 
