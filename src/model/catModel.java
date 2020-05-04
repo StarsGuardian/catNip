@@ -69,8 +69,7 @@ public class catModel extends Observable {
 	}
 
 	/**
-	 * this method starts a timer to keep tracking
-	 * current season
+	 * this method starts a timer to keep tracking current season
 	 */
 	private void startTimer() {
 		// TODO Auto-generated method stub
@@ -84,10 +83,9 @@ public class catModel extends Observable {
 		};
 		timer_season.schedule(timetask, 1000, 1000);
 	}
-	
+
 	/**
-	 * this method will be called when user clicks
-	 * exit button
+	 * this method will be called when user clicks exit button
 	 */
 	public void exitGame() {
 		timer_season.cancel();
@@ -129,9 +127,10 @@ public class catModel extends Observable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * returns total available land
+	 * 
 	 * @return land
 	 */
 	public int getLand() {
@@ -326,6 +325,7 @@ public class catModel extends Observable {
 				TimerTask task = new TimerTask() {
 					int sec = 300;
 					boolean changed = false;
+
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -345,6 +345,7 @@ public class catModel extends Observable {
 				TimerTask task = new TimerTask() {
 					int sec = 180;
 					boolean changed = false;
+
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -364,6 +365,7 @@ public class catModel extends Observable {
 				TimerTask task = new TimerTask() {
 					int sec = 60;
 					boolean changed = false;
+
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
@@ -383,6 +385,7 @@ public class catModel extends Observable {
 				TimerTask task = new TimerTask() {
 					int sec = 600;
 					boolean changed = false;
+
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub

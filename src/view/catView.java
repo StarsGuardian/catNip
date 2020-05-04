@@ -115,7 +115,7 @@ public class catView extends Application implements Observer {
 							}
 						}
 					}
-					current ++;
+					current++;
 					continue;
 				} else {
 					FileInputStream disable;

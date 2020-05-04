@@ -107,15 +107,16 @@ public class catController {
 	public int getLegacy() {
 		return model.getLegacy();
 	}
-	
+
 	/**
 	 * this method gets current season
+	 * 
 	 * @return
 	 */
 	public String getSeason() {
 		return model.returnSeason();
 	}
-	
+
 	/**
 	 * this method updates money
 	 */
@@ -123,14 +124,14 @@ public class catController {
 		model.setMoney(amount);
 		model.syncMoneyNip();
 	}
-	
+
 	/**
 	 * exit the game
 	 */
 	public void exitGame() {
 		model.exitGame();
 	}
-	
+
 	public int getAvailableLand() {
 		return model.getLand();
 	}
