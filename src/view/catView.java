@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.util.Observable;
 import java.util.Observer;
 
-import com.sun.prism.paint.Color;
-
 import controller.catController;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,7 +29,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import model.catModel;
 
 /**
  * This class is catView, all the methods included in this class creates the
@@ -44,6 +41,8 @@ public class catView extends Application implements Observer {
 	private catController controller;
 	private ImageView[][] imageBoard;
 	private Label season;
+	private Label totalMoney;
+	private Label catNip;
 	private StackPane[][] stackBoard;
 	static boolean isBuying = false;
 	public static boolean speedup = false;
@@ -156,8 +155,8 @@ public class catView extends Application implements Observer {
 		HBox hb_button_1 = new HBox(); // hbox_1 inside first hbox contains two buttons, collect and sell
 		HBox hb_button_2 = new HBox(); // hbox inside first hbox contains two buttons, speed and topup
 		VBox all_button = new VBox();
-		Label totalMoney = new Label(); // label displays total amount of money
-		Label catNip = new Label(); // label displays remaining catnip
+		totalMoney = new Label(); // label displays total amount of money
+		catNip = new Label(); // label displays remaining catnip
 		FileInputStream moneyBag;
 		FileInputStream grass;
 		FileInputStream seeds;
@@ -367,6 +366,8 @@ public class catView extends Application implements Observer {
 			public void run() {
 				// TODO Auto-generated method stub
 				season.setText("Current Season:	" + controller.getSeason());
+				totalMoney.setText(String.valueOf(controller.getMoney()));
+				catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 			}
 		});
 	}

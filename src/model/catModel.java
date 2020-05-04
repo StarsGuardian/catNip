@@ -66,6 +66,7 @@ public class catModel extends Observable {
 		}
 		initializing = false;
 		startTimer();
+		consume();
 	}
 
 	/**
@@ -93,6 +94,7 @@ public class catModel extends Observable {
 	public void exitGame() {
 		timer_season.cancel();
 		timer_slot.cancel();
+		syncMoneyNip();
 	}
 
 	/**
@@ -152,10 +154,16 @@ public class catModel extends Observable {
 		try {
 			reader_data = new Scanner(file_data);
 			while (reader_data.hasNextLine()) {
+				String data = reader_data.nextLine().trim();
+				String[] data_s = data.split(" ");
 				if (lineCounter == 0) {
-					money = Integer.parseInt(reader_data.nextLine().trim());
+					money = Integer.parseInt(data_s[0]);
 				} else {
-					catnipRemaining = Integer.parseInt(reader_data.nextLine().trim());
+					long currentTime = System.currentTimeMillis();
+					long savedTime = Long.parseLong(data_s[1]);
+					long duration = currentTime - savedTime;
+					int consumed = (int) (duration / 1000 / 360) * 1;
+					catnipRemaining = Integer.parseInt(data_s[0]) - consumed;
 				}
 				lineCounter++;
 			}
@@ -532,8 +540,8 @@ public class catModel extends Observable {
 		FileWriter nipNmoney;
 		try {
 			nipNmoney = new FileWriter("data.txt");
-			nipNmoney.write(String.valueOf(money) + "\n");
-			nipNmoney.write(String.valueOf(catnipRemaining));
+			nipNmoney.write(String.valueOf(money) + " " + String.valueOf(System.currentTimeMillis()) + "\n");
+			nipNmoney.write(String.valueOf(catnipRemaining) + " " + String.valueOf(System.currentTimeMillis()));
 			nipNmoney.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -600,8 +608,25 @@ public class catModel extends Observable {
 	}
 
 	public void consume() {
-		// check system clock
-		// catnipRemaining will be deducted by 5 per minute
+		TimerTask consume = new TimerTask() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				catnipRemaining -= 1;
+				syncMoneyNip();
+				setChanged();
+				notifyObservers();
+				if (catnipRemaining <= 0) {
+					this.cancel();
+				}
+			}
+		};
+		if (!initializing && catView.speedup) {
+			timer_slot.schedule(consume, 360000 / 5, 360000 / 5);
+		} else if (!initializing) {
+			timer_slot.schedule(consume, 360000, 360000);
+		}
 	}
 
 	/**
