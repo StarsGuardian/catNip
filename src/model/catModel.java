@@ -347,6 +347,26 @@ public class catModel extends Observable {
 	}
 
 	/**
+	 * This method is the same as harvest()
+	 * The only difference is that it does not notify observers, allowing it to be used in test cases
+	 */
+	public void harvestForTest() {
+		harvestCalled = true;
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (field[i][j] == grown) {
+					field[i][j] = empty;
+					catnipRemaining += 1;
+					updateTimefile();
+					syncMoneyNip();
+					if (catnipRemaining >= legacy) {
+						legacy = catnipRemaining;
+					}
+				}
+			}
+		}
+	}
+	/**
 	 * This method replace the time.txt if harvest is called if harvest is called,
 	 * this method removes all the grown catnip info from the file, and keeps those
 	 * has grown yet
@@ -409,6 +429,17 @@ public class catModel extends Observable {
 			}
 		}
 	}
+	
+	/**
+	 * This method is the same as grown(i, j)
+	 * The only difference is that it does not notify observers, allowing it to be used in test cases
+	 */
+	public void grownForTest(int i, int j) {
+		if (field[i][j] == seed) {
+			field[i][j] = grown;
+			updateField(field);
+		}
+	}
 
 	/**
 	 * This method will be called when user sells catnip
@@ -444,6 +475,18 @@ public class catModel extends Observable {
 		syncMoneyNip();
 		setChanged();
 		notifyObservers();
+	}
+	
+	/**
+	 * This method is the same as buyLand
+	 * The only difference is that it does not notify observers, allowing it to be used as a test case
+	 */
+	public void buyLandForTest() {
+		money -= 100;
+		if (money < 100) {
+			buyable = false;
+		}
+		syncMoneyNip();
 	}
 
 	public void consume() {

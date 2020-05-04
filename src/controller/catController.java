@@ -33,6 +33,18 @@ public class catController {
 			System.out.println("Insufficient Funds!");
 		}
 	}
+	
+	/**
+	 * This method is the same as buyLand()
+	 * Only difference is it calls a modified method that doesn't call observers for testing purposes
+	 */
+	public void buyLandForTest() {
+		if (model.checkBuyable()) {
+			model.buyLandForTest();
+		} else {
+			System.out.println("Insufficient Funds!");
+		}
+	}
 
 	/**
 	 * this method will be called if user sells catnip
@@ -62,6 +74,14 @@ public class catController {
 	 */
 	public void harvest() {
 		model.harvest();
+	}
+	
+	/**
+	 * This method is the same as harvest()
+	 * The only difference is it calls a modified method that doesn't call observers for testing purposes
+	 */
+	public void harvestForTest() {
+		model.harvestForTest();
 	}
 
 	/**
