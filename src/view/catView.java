@@ -73,7 +73,7 @@ public class catView extends Application implements Observer {
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard(primaryStage)); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 640);
+		Scene scene = new Scene(window, 750, 690);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
