@@ -44,6 +44,8 @@ public class catModel extends Observable {
 	private boolean initializing;
 	// this contains timer for field
 	private Timer timer_slot;
+	// this contains total land available
+	private int land;
 
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
@@ -66,6 +68,10 @@ public class catModel extends Observable {
 		startTimer();
 	}
 
+	/**
+	 * this method starts a timer to keep tracking
+	 * current season
+	 */
 	private void startTimer() {
 		// TODO Auto-generated method stub
 		timetask = new TimerTask() {
@@ -79,6 +85,10 @@ public class catModel extends Observable {
 		timer_season.schedule(timetask, 1000, 1000);
 	}
 	
+	/**
+	 * this method will be called when user clicks
+	 * exit button
+	 */
 	public void exitGame() {
 		timer_season.cancel();
 		timer_slot.cancel();
@@ -100,6 +110,32 @@ public class catModel extends Observable {
 		getPlantMonitor();
 		getFieldStates();
 		getMoneyNRemaining();
+		gettotalland();
+	}
+
+	/**
+	 * check current available land
+	 */
+	private void gettotalland() {
+		// TODO Auto-generated method stub
+		try {
+			File landFile = new File("land.txt");
+			Scanner read_land = new Scanner(landFile);
+			while (read_land.hasNext()) {
+				land = Integer.parseInt(read_land.nextLine().trim());
+			}
+			read_land.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * returns total available land
+	 * @return land
+	 */
+	public int getLand() {
+		return land;
 	}
 
 	/**
@@ -166,7 +202,8 @@ public class catModel extends Observable {
 					grown(row, col);
 					line.add(string);
 				} else {
-					plantCatnip(row, col);
+					boolean fromFile = true;
+					plantCatnip(row, col, fromFile);
 				}
 			}
 			reader_catnip.close();
@@ -240,25 +277,21 @@ public class catModel extends Observable {
 			summer = false;
 			fall = false;
 			winter = false;
-			System.out.println("spring");
 		} else if ((elapsed / 1000 / 60) % 60 >= 15 && (elapsed / 1000 / 60) % 60 < 30) {
 			spring = false;
 			summer = true;
 			fall = false;
 			winter = false;
-			System.out.println("summer");
 		} else if ((elapsed / 1000 / 60) % 60 >= 30 && (elapsed / 1000 / 60) % 60 < 45) {
 			spring = false;
 			summer = false;
 			fall = true;
 			winter = false;
-			System.out.println("fall");
 		} else if ((elapsed / 1000 / 60) % 60 >= 45 && (elapsed / 1000 / 60) % 60 <= 59) {
 			spring = false;
 			summer = false;
 			fall = false;
 			winter = true;
-			System.out.println("winter");
 		}
 		if (initializing != true) {
 			setChanged();
@@ -282,10 +315,12 @@ public class catModel extends Observable {
 	 * @param i
 	 * @param j
 	 */
-	public void plantCatnip(int i, int j) {
+	public void plantCatnip(int i, int j, boolean fromFile) {
 		if (field[i][j] == empty) {
 			field[i][j] = seed;
-			updatePlantTime(i, j);
+			if (!fromFile) {
+				updatePlantTime(i, j);
+			}
 			updateField(field);
 			if (spring) {
 				TimerTask task = new TimerTask() {
@@ -527,12 +562,19 @@ public class catModel extends Observable {
 	 */
 	public void buyLand() {
 		money -= 100;
+		land += 1;
 		if (money < 100) {
 			buyable = false;
 		}
+		try {
+			FileWriter land_w = new FileWriter("land.txt");
+			land_w.write(String.valueOf(land));
+			land_w.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		syncMoneyNip();
-		setChanged();
-		notifyObservers();
 	}
 
 	public void consume() {

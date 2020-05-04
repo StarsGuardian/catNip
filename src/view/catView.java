@@ -27,6 +27,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -43,6 +44,8 @@ public class catView extends Application implements Observer {
 	private catController controller;
 	private ImageView[][] imageBoard;
 	private Label season;
+	private StackPane[][] stackBoard;
+	private boolean isBuying = false;
 
 	/**
 	 * For test purpose
@@ -64,7 +67,8 @@ public class catView extends Application implements Observer {
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
 		controller = new catController(this); // Initialize controller and pass view as a parameter
-		imageBoard = new ImageView[10][10]; // Initialize imageBoard 2D array which holds 100 ImageView object
+		imageBoard = new ImageView[5][10]; // Initialize imageBoard 2D array which holds 100 ImageView object
+		stackBoard = new StackPane[5][10];
 		primaryStage.setTitle("Katten Idle Game"); // Set window name
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard(primaryStage)); // vbox is set at the top of borderpane
@@ -81,8 +85,54 @@ public class catView extends Application implements Observer {
 			}
 		});
 		DrawBoard(); // support background running
+		checkdisable();
 		primaryStage.setScene(scene);
 		primaryStage.show();
+	}
+
+	/**
+	 * This method checks current available land
+	 */
+	private void checkdisable() {
+		// TODO Auto-generated method stub
+		int count = controller.getAvailableLand();
+		int current = 0;
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (current < count) {
+					if (isBuying) {
+						if (imageBoard[i][j].isDisabled() && stackBoard[i][j].isDisabled()) {
+							FileInputStream soil;
+							try {
+								soil = new FileInputStream("src/soil.jpg");
+								Image so = new Image(soil);
+								stackBoard[i][j].setDisable(false);
+								imageBoard[i][j].setDisable(false);
+								imageBoard[i][j].setImage(so);
+							} catch (FileNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					current ++;
+					continue;
+				} else {
+					FileInputStream disable;
+					try {
+						disable = new FileInputStream("src/disable.jpg");
+						Image dis = new Image(disable);
+						imageBoard[i][j].setImage(dis);
+						stackBoard[i][j].setDisable(true);
+						imageBoard[i][j].setDisable(true);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				current++;
+			}
+		}
 	}
 
 	/**
@@ -203,9 +253,12 @@ public class catView extends Application implements Observer {
 				Image slot = new Image(blank);
 				imageBoard[i][j] = new ImageView();
 				imageBoard[i][j].setImage(slot);
-				int row = i, col = j;
-				grid.add(imageBoard[i][j], j, i); // each slot is an imageview object
+				StackPane stack = new StackPane();
+				stack.getChildren().add(imageBoard[i][j]);
+				stackBoard[i][j] = stack;
+				grid.add(stack, j, i); // each slot is an imageview object
 				// set drag drop event on imageview object inside gridpane
+				int row = i, col = j;
 				imageBoard[i][j].setOnDragDropped(new EventHandler<DragEvent>() {
 
 					@Override
@@ -215,7 +268,8 @@ public class catView extends Application implements Observer {
 						Dragboard db = event.getDragboard();
 						if (db.hasImage()) {
 							imageBoard[row][col].setImage(db.getImage());
-							controller.plantCatnip(row, col);
+							boolean fromFile = false;
+							controller.plantCatnip(row, col, fromFile);
 							success = true;
 						}
 						event.setDropCompleted(success);
@@ -230,8 +284,16 @@ public class catView extends Application implements Observer {
 		season = new Label();
 		season.setText("Current Season:	" + controller.getSeason());
 		season.setFont(Font.font("Verdana", 15));
-		hb_fourthRow.getChildren().add(season);
-		hb_fourthRow.setMargin(season, new Insets(10, 20, 0, 20));
+		Button buy = new Button("Buy Land");
+		buy.setOnMouseClicked((event) -> {
+			isBuying = true;
+			controller.buyLand();
+			checkdisable();
+			totalMoney.setText(String.valueOf(controller.getMoney()));
+		});
+		hb_fourthRow.getChildren().addAll(season, buy);
+		hb_fourthRow.setMargin(season, new Insets(10, 20, 10, 20));
+		hb_fourthRow.setAlignment(Pos.CENTER_LEFT);
 		Button exit = new Button("Exit");
 		exit.setOnMouseClicked((event) -> {
 			controller.exitGame();
@@ -239,7 +301,7 @@ public class catView extends Application implements Observer {
 		});
 		// adding all three hbox into vbox
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow, exit);
-		gameBoard.setMargin(exit, new Insets(0,20,20,20));
+		gameBoard.setMargin(exit, new Insets(0, 20, 20, 20));
 		return gameBoard;
 	}
 
@@ -290,7 +352,9 @@ public class catView extends Application implements Observer {
 					try {
 						blank = new FileInputStream("src/plants.jpg");
 						Image slot = new Image(blank);
-						imageBoard[i][j].setImage(slot);
+						if (!imageBoard[i][j].isDisable()) {
+							imageBoard[i][j].setImage(slot);
+						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -300,7 +364,9 @@ public class catView extends Application implements Observer {
 					try {
 						update = new FileInputStream("src/seed.jpg");
 						Image slot = new Image(update);
-						imageBoard[i][j].setImage(slot);
+						if (!imageBoard[i][j].isDisable()) {
+							imageBoard[i][j].setImage(slot);
+						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -310,7 +376,9 @@ public class catView extends Application implements Observer {
 					try {
 						update = new FileInputStream("src/soil.jpg");
 						Image slot = new Image(update);
-						imageBoard[i][j].setImage(slot);
+						if (!imageBoard[i][j].isDisable()) {
+							imageBoard[i][j].setImage(slot);
+						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -377,6 +445,11 @@ class PopWindow extends Stage {
 		popStage.show();
 	}
 
+	/**
+	 * This method draws topup window
+	 * 
+	 * @throws FileNotFoundException
+	 */
 	@SuppressWarnings("static-access")
 	public void forTopup() throws FileNotFoundException {
 		FileInputStream payment = new FileInputStream("src/payment.jpg");
@@ -443,6 +516,9 @@ class PopWindow extends Stage {
 		popStage.show();
 	}
 
+	/**
+	 * this method draws window for user to enter topup amount
+	 */
 	@SuppressWarnings("static-access")
 	public void valid() {
 		Button close = new Button("Confirm");
@@ -477,6 +553,9 @@ class PopWindow extends Stage {
 		popStage.show();
 	}
 
+	/**
+	 * this method draws window when user enters invalid payment info
+	 */
 	@SuppressWarnings("static-access")
 	public void wrong() {
 		Button close = new Button("Close");

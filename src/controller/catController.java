@@ -53,8 +53,8 @@ public class catController {
 	 * @param i
 	 * @param j
 	 */
-	public void plantCatnip(int i, int j) {
-		model.plantCatnip(i, j);
+	public void plantCatnip(int i, int j, boolean fromFile) {
+		model.plantCatnip(i, j, fromFile);
 	}
 
 	/**
@@ -129,5 +129,9 @@ public class catController {
 	 */
 	public void exitGame() {
 		model.exitGame();
+	}
+	
+	public int getAvailableLand() {
+		return model.getLand();
 	}
 }
