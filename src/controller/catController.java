@@ -27,11 +27,16 @@ public class catController {
 	 * this method will be called if user tries to buy land
 	 */
 	public void buyLand() {
-		if (model.checkBuyable()) {
+		if (checkBuyable()) {
 			model.buyLand();
 		} else {
 			System.out.println("Insufficient Funds!");
 		}
+	}
+
+	public boolean checkBuyable() {
+		// TODO Auto-generated method stub
+		return model.checkBuyable();
 	}
 
 	/**
@@ -132,7 +137,17 @@ public class catController {
 		model.exitGame();
 	}
 
+	/**
+	 * this method gets total number of available field
+	 * 
+	 * @return
+	 */
 	public int getAvailableLand() {
 		return model.getLand();
+	}
+
+	public void paySpeed(int amount) {
+		model.spendMoney(amount);
+		model.syncMoneyNip();
 	}
 }

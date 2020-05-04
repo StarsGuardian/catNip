@@ -336,7 +336,11 @@ public class catModel extends Observable {
 							sec -= 120;
 							changed = true;
 						}
-						sec--;
+						if (catView.speedup) {
+							sec -= 5;
+						} else {
+							sec--;
+						}
 						if (sec <= 0) {
 							grown(i, j);
 							this.cancel();
@@ -356,7 +360,11 @@ public class catModel extends Observable {
 							sec -= 120;
 							changed = true;
 						}
-						sec--;
+						if (catView.speedup) {
+							sec = sec / 5;
+						} else {
+							sec--;
+						}
 						if (sec <= 0) {
 							grown(i, j);
 							this.cancel();
@@ -376,7 +384,11 @@ public class catModel extends Observable {
 							sec += 540;
 							changed = true;
 						}
-						sec--;
+						if (catView.speedup) {
+							sec -= 5;
+						} else {
+							sec--;
+						}
 						if (sec <= 0) {
 							grown(i, j);
 							this.cancel();
@@ -396,7 +408,11 @@ public class catModel extends Observable {
 							sec -= 300;
 							changed = true;
 						}
-						sec--;
+						if (catView.speedup) {
+							sec -= 5;
+						} else {
+							sec--;
+						}
 						if (sec <= 0) {
 							grown(i, j);
 							this.cancel();
@@ -642,8 +658,22 @@ public class catModel extends Observable {
 		}
 	}
 
+	/**
+	 * This method will be called when user successfully paid
+	 * 
+	 * @param amount
+	 */
 	public void setMoney(int amount) {
 		money += amount;
+	}
+
+	/**
+	 * This method will be called when user spend money in the game
+	 * 
+	 * @param amount
+	 */
+	public void spendMoney(int amount) {
+		money -= amount;
 	}
 
 }

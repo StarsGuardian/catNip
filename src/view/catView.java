@@ -45,7 +45,10 @@ public class catView extends Application implements Observer {
 	private ImageView[][] imageBoard;
 	private Label season;
 	private StackPane[][] stackBoard;
-	private boolean isBuying = false;
+	static boolean isBuying = false;
+	public static boolean speedup = false;
+	static boolean inspeed = false;
+	static boolean insell = false;
 
 	/**
 	 * For test purpose
@@ -199,6 +202,7 @@ public class catView extends Application implements Observer {
 		// set click event on cancel button
 		Button sell = new Button("  Sell  ");
 		sell.setOnMouseClicked((event) -> {
+			insell = true;
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
 			pop.display();
 		});
@@ -206,10 +210,6 @@ public class catView extends Application implements Observer {
 		hb_button_1.setAlignment(Pos.CENTER);
 		hb_button_1.setMargin(collect, new Insets(20, 20, 20, 40));
 		hb_button_1.setMargin(sell, new Insets(20, 20, 20, 20));
-		Button speed = new Button(" Speed ");
-		speed.setOnMouseClicked((event) -> {
-
-		});
 		Button TopUp = new Button("TopUp");
 		TopUp.setOnMouseClicked((event) -> {
 			PopWindow pop = new PopWindow(controller, totalMoney, catNip);
@@ -220,10 +220,36 @@ public class catView extends Application implements Observer {
 				e.printStackTrace();
 			}
 		});
-		hb_button_2.getChildren().addAll(speed, TopUp);
+		Button speed = new Button(" Speed ");
+		speed.setOnMouseClicked((event) -> {
+			inspeed = true;
+			if (controller.getMoney() >= 100) {
+				controller.paySpeed(100);
+				totalMoney.setText(String.valueOf(controller.getMoney()));
+				speedup = true;
+				Button speedon = new Button(" It'sOn ");
+				hb_button_2.getChildren().remove(speed);
+				hb_button_2.getChildren().add(speedon);
+				hb_button_2.setAlignment(Pos.CENTER);
+				hb_button_2.setMargin(speedon, new Insets(10, 20, 20, 20));
+				speedon.setOnMouseClicked((event_inner) -> {
+					hb_button_2.getChildren().remove(speedon);
+					hb_button_2.getChildren().add(speed);
+					hb_button_2.setAlignment(Pos.CENTER);
+					hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
+					event_inner.consume();
+					event.consume();
+				});
+			} else {
+				PopWindow pw = new PopWindow(controller, totalMoney, catNip);
+				pw.wrong();
+			}
+			inspeed = false;
+		});
+		hb_button_2.getChildren().addAll(TopUp, speed);
 		hb_button_2.setAlignment(Pos.CENTER);
-		hb_button_2.setMargin(speed, new Insets(10, 20, 20, 45));
-		hb_button_2.setMargin(TopUp, new Insets(10, 20, 20, 20));
+		hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
+		hb_button_2.setMargin(TopUp, new Insets(10, 20, 20, 50));
 		all_button.getChildren().addAll(hb_button_1, hb_button_2);
 		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, all_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
@@ -287,9 +313,15 @@ public class catView extends Application implements Observer {
 		Button buy = new Button("Buy Land");
 		buy.setOnMouseClicked((event) -> {
 			isBuying = true;
-			controller.buyLand();
-			checkdisable();
-			totalMoney.setText(String.valueOf(controller.getMoney()));
+			if (controller.checkBuyable()) {
+				controller.buyLand();
+				checkdisable();
+				totalMoney.setText(String.valueOf(controller.getMoney()));
+			} else {
+				PopWindow pw = new PopWindow(controller, totalMoney, catNip);
+				pw.wrong();
+			}
+			isBuying = false;
 		});
 		hb_fourthRow.getChildren().addAll(season, buy);
 		hb_fourthRow.setMargin(season, new Insets(10, 20, 10, 20));
@@ -399,6 +431,7 @@ class PopWindow extends Stage {
 	private catController control;
 	private Label newMoney;
 	private Label grass;
+	private boolean exceed = false;
 
 	public PopWindow(catController controller, Label totalMoney, Label catNip) {
 		control = controller;
@@ -426,16 +459,27 @@ class PopWindow extends Stage {
 		labelNtext.setAlignment(Pos.CENTER);
 		HBox buttons = new HBox();
 		buttons.getChildren().addAll(confirm, cancel);
-		buttons.setMargin(confirm, new Insets(0, 30, 30, 50));
+		buttons.setMargin(confirm, new Insets(0, 30, 30, 60));
 		buttons.setMargin(cancel, new Insets(0, 30, 30, 0));
 		buttons.setAlignment(Pos.CENTER);
 		confirm.setOnMouseClicked((event) -> {
-			control.sellCatnip(Integer.parseInt(enter.getText()));
-			popStage.close();
-			newMoney.setText(String.valueOf(control.getMoney()));
-			grass.setText(String.valueOf(control.getCatnip()) + "/" + String.valueOf(control.getLegacy()));
+			if (Integer.parseInt(enter.getText()) % 10 != 0) {
+				wrong();
+			} else if (Integer.parseInt(enter.getText()) > control.getCatnip()
+					|| Integer.parseInt(enter.getText()) < 0) {
+				exceed = true;
+				wrong();
+			} else {
+				catView.insell = false;
+				exceed = false;
+				control.sellCatnip(Integer.parseInt(enter.getText()));
+				popStage.close();
+				newMoney.setText(String.valueOf(control.getMoney()));
+				grass.setText(String.valueOf(control.getCatnip()) + "/" + String.valueOf(control.getLegacy()));
+			}
 		});
 		cancel.setOnMouseClicked((event) -> {
+			catView.insell = false;
 			popStage.close();
 		});
 		VBox setAll = new VBox();
@@ -559,20 +603,49 @@ class PopWindow extends Stage {
 	@SuppressWarnings("static-access")
 	public void wrong() {
 		Button close = new Button("Close");
-		Label amount = new Label("Please fill out all the required information");
+		Label amount;
+		if (catView.inspeed) {
+			amount = new Label("Failed, Speed Up feature requires minimum $100 deposite");
+		} else if (catView.isBuying) {
+			amount = new Label("Insufficient funds, minimum $100 is required");
+		} else if (catView.insell && !exceed) {
+			amount = new Label("Please enter the number which is multiple of 10");
+		} else if (exceed && catView.insell) {
+			amount = new Label("Exceeded maximum amount");
+		} else {
+			amount = new Label("Please provide all the required information");
+		}
+		amount.setFont(Font.font("Verdana", 12));
 		Stage popStage = new Stage();
 		GridPane popup = new GridPane();
 		popup.setStyle("-fx-background-color:white");
-		Scene newScene = new Scene(popup, 350, 100);
+		Scene newScene = new Scene(popup, 400, 100);
 		HBox labelNtext = new HBox();
 		labelNtext.getChildren().addAll(amount);
-		labelNtext.setMargin(amount, new Insets(30, 30, 20, 60));
+		if (catView.inspeed) {
+			labelNtext.setMargin(amount, new Insets(30, 30, 20, 15));
+		} else if (catView.isBuying) {
+			labelNtext.setMargin(amount, new Insets(30, 30, 20, 70));
+		} else if (catView.insell && !exceed) {
+			labelNtext.setMargin(amount, new Insets(30, 30, 20, 50));
+		} else if (exceed && catView.insell) {
+			labelNtext.setMargin(amount, new Insets(30, 30, 20, 110));
+		} else {
+			labelNtext.setMargin(amount, new Insets(30, 30, 20, 80));
+		}
 		labelNtext.setAlignment(Pos.CENTER);
 		HBox buttons = new HBox();
 		buttons.getChildren().addAll(close);
 		buttons.setAlignment(Pos.CENTER);
-		buttons.setMargin(close, new Insets(0, 30, 30, 60));
+		if (catView.inspeed) {
+			buttons.setMargin(close, new Insets(0, 30, 30, 30));
+		} else if (exceed && catView.insell) {
+			buttons.setMargin(close, new Insets(0, 30, 30, 90));
+		} else {
+			buttons.setMargin(close, new Insets(0, 30, 30, 60));
+		}
 		close.setOnMouseClicked((event) -> {
+			exceed = false;
 			popStage.close();
 		});
 		VBox setAll = new VBox();
