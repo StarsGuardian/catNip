@@ -34,8 +34,6 @@ public class catModel extends Observable {
 	private boolean harvestCalled = false;
 	// These parameter represent spring, summer, fall, winter
 	private boolean spring, summer, fall, winter;
-	// This contains timertask for each slot
-	private List<TimerTask> slottask;
 	// This contains timetask
 	private TimerTask timetask;
 	// This contains timeline
@@ -53,7 +51,6 @@ public class catModel extends Observable {
 	 */
 	public catModel(catView view) {
 		field = new char[5][10];
-		slottask = new ArrayList<TimerTask>();
 		timer_season = new Timer();
 		timer_slot = new Timer();
 		initializing = true;
@@ -65,8 +62,8 @@ public class catModel extends Observable {
 			e.printStackTrace();
 		}
 		initializing = false;
-		startTimer();
-		consume();
+		startTimer(); // this timer keeps tracking season change
+		consume(); // this method keeps tracking the consumption of catnip
 	}
 
 	/**
@@ -89,7 +86,7 @@ public class catModel extends Observable {
 	/**
 	 * this method will be called when user clicks exit button
 	 * 
-	 * /** The player quits the client, so all of TimerTask(s) should be terminated.
+	 * The player quits the client, so all of TimerTask(s) should be terminated.
 	 */
 	public void exitGame() {
 		timer_season.cancel();
@@ -98,7 +95,7 @@ public class catModel extends Observable {
 	}
 
 	/**
-	 * This private method calls three functions to retrive three different parts of
+	 * This private method calls five functions to retrive three different parts of
 	 * the game state
 	 * 
 	 * @throws IOException
@@ -324,7 +321,8 @@ public class catModel extends Observable {
 	}
 
 	/**
-	 * This method places one catnip seed in the target slot
+	 * This method places one catnip seed in the target slot and initialize a timer
+	 * task for that slot
 	 * 
 	 * @param i
 	 * @param j
@@ -373,7 +371,7 @@ public class catModel extends Observable {
 							changed = true;
 						}
 						if (catView.speedup) {
-							sec = sec / 5;
+							sec -= 5;
 						} else {
 							sec--;
 						}
@@ -509,7 +507,7 @@ public class catModel extends Observable {
 	/**
 	 * This method replace the time.txt if harvest is called if harvest is called,
 	 * this method removes all the grown catnip info from the file, and keeps those
-	 * has grown yet
+	 * hasn't yet grown
 	 */
 	private void updateTimefile() {
 		// TODO Auto-generated method stub
@@ -611,6 +609,10 @@ public class catModel extends Observable {
 		syncMoneyNip();
 	}
 
+	/**
+	 * this method controls the catnip consumption, each cat will consume 1 catnip
+	 * per minute
+	 */
 	public void consume() {
 		TimerTask consume = new TimerTask() {
 
@@ -710,7 +712,7 @@ public class catModel extends Observable {
 	}
 
 	/**
-	 * for test purpose
+	 * These methods below only for test purpose
 	 */
 	public void setSpring(boolean given) {
 		spring = given;

@@ -154,6 +154,10 @@ public class catController {
 		model.syncMoneyNip();
 	}
 
+	/**
+	 * this method will be called if user clicked restart game, this method reset
+	 * all the game data to default
+	 */
 	public void resetGame() {
 		// TODO Auto-generated method stub
 		try {

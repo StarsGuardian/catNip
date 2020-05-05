@@ -39,33 +39,26 @@ import javafx.stage.Stage;
  */
 public class catView extends Application implements Observer {
 	private catController controller;
-	private ImageView[][] imageBoard;
-	private Label season;
-	private Label totalMoney;
-	private Label catNip;
-	private HBox hb_cat;
-	private StackPane[][] stackBoard;
-	static boolean isBuying = false;
-	public static boolean speedup = false;
-	static boolean inspeed = false;
-	static boolean insell = false;
-	static boolean deadCalled = false;
+	private ImageView[][] imageBoard; // This 2D array contains ImageView objects
+	private Label season; // This label displays season information
+	private Label totalMoney; // This label displays money information
+	private Label catNip; // This label displays remaining catNip
+	private HBox hb_cat; // This HBox contains cat images
+	private StackPane[][] stackBoard; // This 2D array contains StackPane objects
+	static boolean isBuying = false; // This boolean controls if user is doing purchase operation
+	public static boolean speedup = false; // This boolean controls if user speed up the game
+	static boolean inspeed = false; // This boolean controls if now is in speed up mode
+	static boolean insell = false; // This boolean controls if the current window is selling
+	static boolean deadCalled = false; // This boolean controls if the cat is dead
 
 	/**
-	 * For test purpose
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		launch(args);
-	}
-
-	/**
-	 * This displays game board imageBoard is a 2D array which contains ImageView
-	 * object in each slot This game board is a borderpane contains a vbox which has
-	 * three hbox in it first hbox holds money, catnipremaining and seed picture, as
-	 * well as collect cancel button second hbox holds cat image, third hbox holds
-	 * gridpane with 100 ImageView object inside the gridpane
+	 * This displays game board, stackBoard is a 2D array which contains StackPane
+	 * object inside it. ImageBoard is a 2D array which contains ImageView objects
+	 * in each slot. This game board is a borderpane contains a vbox which has four
+	 * hbox in it. First hbox holds money, catnipremaining and seed picture, as well
+	 * as collect cancel button. Second hbox holds cat image, speed button and top
+	 * up button. Third hbox holds gridpane with 50 StackPane objects which contains
+	 * ImageView objects inside
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -89,9 +82,10 @@ public class catView extends Application implements Observer {
 			}
 		});
 		DrawBoard(); // support background running
-		checkdisable();
+		checkdisable(); // check unlocked land
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		// if cat is dead replace the image
 		if (controller.getCatnip() <= 0) {
 			setDead(hb_cat);
 		}
@@ -143,8 +137,8 @@ public class catView extends Application implements Observer {
 	}
 
 	/**
-	 * This function divided the game board into three rows each row is contained by
-	 * a hbox all three hboxes are wrapped into the vbox
+	 * This function divided the game board into four rows. Each row is contained by
+	 * a hbox. All four hboxes are wrapped into the vbox
 	 * 
 	 * @return vbox
 	 * @throws FileNotFoundException
@@ -355,6 +349,11 @@ public class catView extends Application implements Observer {
 		return gameBoard;
 	}
 
+	/**
+	 * This method replace image if the cat is dead
+	 * 
+	 * @param hb_cat
+	 */
 	@SuppressWarnings("static-access")
 	private void setDead(HBox hb_cat) {
 		// TODO Auto-generated method stub
@@ -377,6 +376,11 @@ public class catView extends Application implements Observer {
 		} // get cat image
 	}
 
+	/**
+	 * This method accomplishes drag drop feature
+	 * 
+	 * @param seed
+	 */
 	// set drag event on seed image
 	private void seedDrag(ImageView seed) {
 		// TODO Auto-generated method stub
@@ -535,7 +539,7 @@ class PopWindow extends Stage {
 	}
 
 	/**
-	 * This method draws topup window
+	 * This method draws payment window
 	 * 
 	 * @throws FileNotFoundException
 	 */
@@ -643,7 +647,7 @@ class PopWindow extends Stage {
 	}
 
 	/**
-	 * this method draws window when user enters invalid payment info
+	 * this method draws window when user trying to send invalid request
 	 */
 	@SuppressWarnings("static-access")
 	public void wrong() {
@@ -701,6 +705,9 @@ class PopWindow extends Stage {
 		popStage.show();
 	}
 
+	/**
+	 * This method draws window when cat is dead
+	 */
 	@SuppressWarnings("static-access")
 	public void deadwindow() {
 		Button close = new Button("Close");
