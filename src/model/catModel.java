@@ -709,4 +709,34 @@ public class catModel extends Observable {
 		money -= amount;
 	}
 
+	/**
+	 * for test purpose
+	 */
+	public void setSpring(boolean given) {
+		spring = given;
+	}
+
+	public void setSummer(boolean given) {
+		summer = given;
+	}
+
+	public void setFall(boolean given) {
+		fall = given;
+	}
+
+	public void setWinter(boolean given) {
+		winter = given;
+	}
+
+	public void setHarvestCalled(boolean given) {
+		harvestCalled = given;
+	}
+
+	public void setField() {
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 10; j++) {
+				field[i][j] = grown;
+			}
+		}
+	}
 }
