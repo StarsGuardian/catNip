@@ -43,11 +43,13 @@ public class catView extends Application implements Observer {
 	private Label season;
 	private Label totalMoney;
 	private Label catNip;
+	private HBox hb_cat;
 	private StackPane[][] stackBoard;
 	static boolean isBuying = false;
 	public static boolean speedup = false;
 	static boolean inspeed = false;
 	static boolean insell = false;
+	static boolean deadCalled = false;
 
 	/**
 	 * For test purpose
@@ -75,7 +77,7 @@ public class catView extends Application implements Observer {
 		BorderPane window = new BorderPane(); // window is BorderPane
 		window.setTop(RowsOfBoard(primaryStage)); // vbox is set at the top of borderpane
 		window.setStyle("-fx-background-color:white"); // set background color to white
-		Scene scene = new Scene(window, 750, 690);
+		Scene scene = new Scene(window, 750, 700);
 		// enable drag and drop on this scene
 		scene.setOnDragOver(new EventHandler<DragEvent>() {
 
@@ -90,6 +92,9 @@ public class catView extends Application implements Observer {
 		checkdisable();
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		if (controller.getCatnip() <= 0) {
+			setDead(hb_cat);
+		}
 	}
 
 	/**
@@ -254,8 +259,8 @@ public class catView extends Application implements Observer {
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
 		// second hbox for second row
 		HBox hb_secondRow = new HBox();
+		hb_cat = new HBox();
 		FileInputStream getCat;
-		HBox hb_cat = new HBox();
 		try {
 			getCat = new FileInputStream("src/cat.jpg"); // get cat image
 			Image catImage = new Image(getCat);
@@ -322,8 +327,22 @@ public class catView extends Application implements Observer {
 			}
 			isBuying = false;
 		});
-		hb_fourthRow.getChildren().addAll(season, buy);
+		Button start = new Button("Restart");
+		start.setOnMouseClicked((event) -> {
+			controller.exitGame();
+			controller.resetGame();
+			primaryStage.close();
+			catView restart = new catView();
+			try {
+				restart.start(primaryStage);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		hb_fourthRow.getChildren().addAll(season, buy, start);
 		hb_fourthRow.setMargin(season, new Insets(10, 20, 10, 20));
+		hb_fourthRow.setMargin(buy, new Insets(10, 20, 10, 0));
 		hb_fourthRow.setAlignment(Pos.CENTER_LEFT);
 		Button exit = new Button("Exit");
 		exit.setOnMouseClicked((event) -> {
@@ -334,6 +353,28 @@ public class catView extends Application implements Observer {
 		gameBoard.getChildren().addAll(hb_firstRow, hb_secondRow, hb_fourthRow, hb_thirdRow, exit);
 		gameBoard.setMargin(exit, new Insets(0, 20, 20, 20));
 		return gameBoard;
+	}
+
+	@SuppressWarnings("static-access")
+	private void setDead(HBox hb_cat) {
+		// TODO Auto-generated method stub
+		deadCalled = true;
+		if (!hb_cat.getChildren().isEmpty()) {
+			hb_cat.getChildren().remove(0);
+		}
+		FileInputStream getNew;
+		try {
+			getNew = new FileInputStream("src/skull.jpg");
+			Image catImage = new Image(getNew);
+			ImageView cat = new ImageView(catImage);
+			hb_cat.getChildren().add(cat);
+			hb_cat.setMargin(cat, new Insets(10, 20, 20, 20));
+			PopWindow pw = new PopWindow(controller, totalMoney, catNip);
+			pw.deadwindow();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // get cat image
 	}
 
 	// set drag event on seed image
@@ -368,6 +409,9 @@ public class catView extends Application implements Observer {
 				season.setText("Current Season:	" + controller.getSeason());
 				totalMoney.setText(String.valueOf(controller.getMoney()));
 				catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
+				if (controller.getCatnip() <= 0 && !deadCalled) {
+					setDead(hb_cat);
+				}
 			}
 		});
 	}
@@ -645,8 +689,37 @@ class PopWindow extends Stage {
 		} else {
 			buttons.setMargin(close, new Insets(0, 30, 30, 60));
 		}
+
 		close.setOnMouseClicked((event) -> {
 			exceed = false;
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, buttons);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
+	}
+
+	@SuppressWarnings("static-access")
+	public void deadwindow() {
+		Button close = new Button("Close");
+		Label amount = new Label("Catnip ran out, the cat died. Click Restart to start a new game");
+		amount.setFont(Font.font("Verdana", 12));
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-background-color:white");
+		Scene newScene = new Scene(popup, 400, 100);
+		HBox labelNtext = new HBox();
+		labelNtext.getChildren().addAll(amount);
+		labelNtext.setMargin(amount, new Insets(30, 10, 20, 10));
+		labelNtext.setAlignment(Pos.CENTER);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(close);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setMargin(close, new Insets(0, 30, 30, 50));
+		close.setOnMouseClicked((event) -> {
+			control.exitGame();
 			popStage.close();
 		});
 		VBox setAll = new VBox();

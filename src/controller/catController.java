@@ -1,5 +1,8 @@
 package controller;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import model.catModel;
 import view.catView;
 
@@ -149,5 +152,32 @@ public class catController {
 	public void paySpeed(int amount) {
 		model.spendMoney(amount);
 		model.syncMoneyNip();
+	}
+
+	public void resetGame() {
+		// TODO Auto-generated method stub
+		try {
+			FileWriter field = new FileWriter("field.txt");
+			for (int i = 0; i < 5; i++) {
+				for (int j = 0; j < 10; j++) {
+					field.write("e");
+				}
+				field.write("\n");
+			}
+			field.close();
+			FileWriter time = new FileWriter("time.txt");
+			time.write("");
+			time.close();
+			FileWriter data = new FileWriter("data.txt");
+			data.write("0 " + String.valueOf(System.currentTimeMillis()) +"\n");
+			data.write("100 " + String.valueOf(System.currentTimeMillis()));
+			data.close();
+			FileWriter land = new FileWriter("land.txt");
+			land.write("25");
+			land.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

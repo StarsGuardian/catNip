@@ -163,7 +163,11 @@ public class catModel extends Observable {
 					long savedTime = Long.parseLong(data_s[1]);
 					long duration = currentTime - savedTime;
 					int consumed = (int) (duration / 1000 / 360) * 1;
-					catnipRemaining = Integer.parseInt(data_s[0]) - consumed;
+					if (Integer.parseInt(data_s[0]) - consumed <= 0) {
+						catnipRemaining = 0;
+					} else {
+						catnipRemaining = Integer.parseInt(data_s[0]) - consumed;
+					}
 				}
 				lineCounter++;
 			}
@@ -613,12 +617,16 @@ public class catModel extends Observable {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				catnipRemaining -= 1;
-				syncMoneyNip();
-				setChanged();
-				notifyObservers();
 				if (catnipRemaining <= 0) {
+					catnipRemaining = 0;
+					setChanged();
+					notifyObservers();
 					this.cancel();
+				} else {
+					catnipRemaining -= 1;
+					syncMoneyNip();
+					setChanged();
+					notifyObservers();
 				}
 			}
 		};
