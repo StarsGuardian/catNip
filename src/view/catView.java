@@ -45,6 +45,7 @@ public class catView extends Application implements Observer {
 	private Label catNip; // This label displays remaining catNip
 	private HBox hb_cat; // This HBox contains cat images
 	private StackPane[][] stackBoard; // This 2D array contains StackPane objects
+	private HBox hb_secondRow = new HBox();
 	static boolean isBuying = false; // This boolean controls if user is doing purchase operation
 	public static boolean speedup = false; // This boolean controls if user speed up the game
 	static boolean inspeed = false; // This boolean controls if now is in speed up mode
@@ -153,19 +154,23 @@ public class catView extends Application implements Observer {
 		HBox hb_seed = new HBox(); // hbox inside first hbox contains seed image
 		HBox hb_button_1 = new HBox(); // hbox_1 inside first hbox contains two buttons, collect and sell
 		HBox hb_button_2 = new HBox(); // hbox inside first hbox contains two buttons, speed and topup
+		
 		VBox all_button = new VBox();
 		totalMoney = new Label(); // label displays total amount of money
 		catNip = new Label(); // label displays remaining catnip
 		FileInputStream moneyBag;
 		FileInputStream grass;
 		FileInputStream seeds;
+		FileInputStream gf;
 		try {
 			moneyBag = new FileInputStream("src/money.jpg"); // get money image
 			grass = new FileInputStream("src/plants.jpg"); // get catnip image
 			seeds = new FileInputStream("src/seed.jpg"); // get seed image
+			
 			Image money = new Image(moneyBag);
 			Image grassImage = new Image(grass);
 			Image seedsImage = new Image(seeds);
+			
 			ImageView showMoney = new ImageView();
 			ImageView showGrass = new ImageView();
 			ImageView showSeeds = new ImageView();
@@ -252,7 +257,7 @@ public class catView extends Application implements Observer {
 		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, all_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
 		// second hbox for second row
-		HBox hb_secondRow = new HBox();
+		
 		hb_cat = new HBox();
 		FileInputStream getCat;
 		try {
@@ -261,10 +266,17 @@ public class catView extends Application implements Observer {
 			ImageView cat = new ImageView(catImage);
 			hb_cat.getChildren().add(cat);
 			hb_cat.setMargin(cat, new Insets(10, 20, 20, 20));
+
+			
+		
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		
 		hb_secondRow.getChildren().addAll(hb_cat);
+
+		
 		// third hbox for third row
 		HBox hb_thirdRow = new HBox();
 		GridPane grid = new GridPane(); // gridpane for the field
@@ -416,6 +428,29 @@ public class catView extends Application implements Observer {
 				if (controller.getCatnip() <= 0 && !deadCalled) {
 					setDead(hb_cat);
 				}
+				if(controller.getCatnip()>=800) {
+					HBox hb_gf = new HBox();//hbox insid girlfriend image
+					FileInputStream gf;
+					try {
+						gf = new  FileInputStream("src/gf.jpg");
+						Image gfImage = new Image(gf);
+						ImageView gfView = new ImageView(gfImage);
+						if(hb_secondRow.getChildren().size()<2) {
+						hb_gf.getChildren().add(gfView);
+						HBox.setMargin(gfView, new Insets(10,20,20,20));
+						hb_secondRow.getChildren().add(hb_gf);
+						controller.consumeCatnip();
+						}
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+					
+				}
+				
+			
+			
 			}
 		});
 	}
