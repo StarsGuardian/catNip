@@ -169,7 +169,7 @@ public class catController {
 			time.write("");
 			time.close();
 			FileWriter data = new FileWriter("data.txt");
-			data.write("0 " + String.valueOf(System.currentTimeMillis()) +"\n");
+			data.write("0 " + String.valueOf(System.currentTimeMillis()) + "\n");
 			data.write("100 " + String.valueOf(System.currentTimeMillis()));
 			data.close();
 			FileWriter land = new FileWriter("land.txt");
