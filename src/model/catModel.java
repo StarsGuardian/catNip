@@ -77,6 +77,9 @@ public class catModel extends Observable {
 	public void setGirlFriend(boolean val) {
 		hasGirlFriend = val;
 	}
+	public boolean getGirlFriend() {
+		return hasGirlFriend;
+	}
 	/**
 	 * this method starts a timer to keep tracking current season
 	 */
@@ -208,7 +211,7 @@ public class catModel extends Observable {
 				int col = Integer.parseInt(filecontent[2]);
 				long duration = System.currentTimeMillis() - time;
 				System.out.println("time elapsed for this catnip: ");
-				System.out.println(duration / 1000 / 60);
+				System.out.println(duration / 1000/ 60);
 				// different season have requires different amount of time
 				// for catnip to grow
 				if (duration / 1000 / 60 >= 5 && spring) {
@@ -220,7 +223,7 @@ public class catModel extends Observable {
 				} else if (duration / 1000 / 60 >= 1 && fall) {
 					grown(row, col);
 					line.add(string);
-				} else if (duration / 1000 / 60 >= 10 && winter) {
+				} else if (duration / 1000/ 60 >= 10 && winter) {
 					grown(row, col);
 					line.add(string);
 				} else {

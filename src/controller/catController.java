@@ -116,7 +116,9 @@ public class catController {
 			model.setGirlFriend(val);;
 	}
 
-	
+	public boolean  getGirlFriend() {
+		return model.getGirlFriend();
+	}
 	/**
 	 * this method will get legacy
 	 * 

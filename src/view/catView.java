@@ -378,7 +378,13 @@ public class catView extends Application implements Observer {
 			getNew = new FileInputStream("src/skull.jpg");
 			Image catImage = new Image(getNew);
 			ImageView cat = new ImageView(catImage);
-			hb_cat.getChildren().add(cat);
+			
+			if(controller.getGirlFriend()) {
+				hb_cat.getChildren().add(cat);
+			}else {
+				hb_cat.getChildren().addAll(cat,cat);
+			}
+			
 			hb_cat.setMargin(cat, new Insets(10, 20, 20, 20));
 			PopWindow pw = new PopWindow(controller, totalMoney, catNip);
 			pw.deadwindow();
