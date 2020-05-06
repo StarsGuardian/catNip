@@ -34,8 +34,8 @@ import javafx.stage.Stage;
  * This class is catView, all the methods included in this class creates the
  * game board for user
  * 
- * @author ianfang
- *
+ * @author Jianfang
+ *@author Difeng Ye
  */
 public class catView extends Application implements Observer {
 	private catController controller;
@@ -43,7 +43,8 @@ public class catView extends Application implements Observer {
 	private Label season; // This label displays season information
 	private Label totalMoney; // This label displays money information
 	private Label catNip; // This label displays remaining catNip
-	private HBox hb_cat; // This HBox contains cat images
+	private HBox hb_cat = new HBox(); // This HBox contains cat images
+	private HBox hb_gf  = new HBox();//hbox insid girlfriend image
 	private StackPane[][] stackBoard; // This 2D array contains StackPane objects
 	private HBox hb_secondRow = new HBox();
 	static boolean isBuying = false; // This boolean controls if user is doing purchase operation
@@ -88,7 +89,7 @@ public class catView extends Application implements Observer {
 		primaryStage.show();
 		// if cat is dead replace the image
 		if (controller.getCatnip() <= 0) {
-			setDead(hb_cat);
+			setDead();
 		}
 	}
 
@@ -367,25 +368,39 @@ public class catView extends Application implements Observer {
 	 * @param hb_cat
 	 */
 	@SuppressWarnings("static-access")
-	private void setDead(HBox hb_cat) {
+	private void setDead() {
 		// TODO Auto-generated method stub
 		deadCalled = true;
-		if (!hb_cat.getChildren().isEmpty()) {
+		if (!hb_secondRow.getChildren().isEmpty()) {
+			hb_secondRow.getChildren().remove(0);
+		}
+		if(!hb_cat.getChildren().isEmpty()) {
 			hb_cat.getChildren().remove(0);
 		}
+		if(!hb_gf.getChildren().isEmpty()) {
+			hb_gf.getChildren().remove(0);
+			
+		}
 		FileInputStream getNew;
+		FileInputStream getNewGF;
 		try {
 			getNew = new FileInputStream("src/skull.jpg");
+			getNewGF = new FileInputStream("src/skullGF.jpg");
 			Image catImage = new Image(getNew);
+			Image gfImage = new Image(getNewGF);
 			ImageView cat = new ImageView(catImage);
-			
+			ImageView gfImageView = new ImageView(gfImage);
+			hb_cat.getChildren().add(cat);
+			hb_gf.getChildren().add(gfImageView);
 			if(controller.getGirlFriend()) {
-				hb_cat.getChildren().add(cat);
+				hb_secondRow.getChildren().add(hb_cat);
 			}else {
-				hb_cat.getChildren().addAll(cat,cat);
+				hb_secondRow.getChildren().addAll(hb_cat,hb_gf);
 			}
 			
 			hb_cat.setMargin(cat, new Insets(10, 20, 20, 20));
+			hb_gf.setMargin(gfImageView, new Insets(10, 20, 20, 20));
+			
 			PopWindow pw = new PopWindow(controller, totalMoney, catNip);
 			pw.deadwindow();
 		} catch (FileNotFoundException e) {
@@ -431,12 +446,10 @@ public class catView extends Application implements Observer {
 				season.setText("Current Season:	" + controller.getSeason());
 				totalMoney.setText(String.valueOf(controller.getMoney()));
 				catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
-				if (controller.getCatnip() <= 0 && !deadCalled) {
-					setDead(hb_cat);
-				}
+				
 				if(controller.getCatnip()>=800) {
 					controller.setGirlFriend(true);
-					HBox hb_gf = new HBox();//hbox insid girlfriend image
+					hb_gf = new HBox();
 					FileInputStream gf;
 					try {
 						gf = new  FileInputStream("src/gf.jpg");
@@ -452,9 +465,15 @@ public class catView extends Application implements Observer {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				
 					
 				}
+				
+				
+				if (controller.getCatnip() <= 0 && !deadCalled) {
+					setDead();
+					
+				}
+
 				
 			
 			
