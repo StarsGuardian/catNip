@@ -632,6 +632,7 @@ public class catModel extends Observable {
 					setChanged();
 					notifyObservers();
 				}
+				System.out.println(catView.speedup);
 			}
 		};
 		if (!initializing && catView.speedup) {

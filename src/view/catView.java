@@ -52,8 +52,8 @@ public class catView extends Application implements Observer {
 	static boolean inspeed = false; // This boolean controls if now is in speed up mode
 	static boolean insell = false; // This boolean controls if the current window is selling
 	static boolean deadCalled = false; // This boolean controls if the cat is dead
-	public static boolean girlfriend = false;
-	static Stage stage;
+	public static boolean girlfriend = false; // This boolean controls the girlfriend
+	static Stage stage; // This boolean passes primaryStage to popwindow class
 
 	/**
 	 * This displays game board, stackBoard is a 2D array which contains StackPane
@@ -239,7 +239,6 @@ public class catView extends Application implements Observer {
 				hb_button_2.getChildren().add(speedon);
 				hb_button_2.setAlignment(Pos.CENTER);
 				hb_button_2.setMargin(speedon, new Insets(10, 20, 20, 20));
-				event.consume();
 			} else {
 				PopWindow pw = new PopWindow(controller, totalMoney, catNip);
 				pw.wrong();
@@ -253,7 +252,6 @@ public class catView extends Application implements Observer {
 			hb_button_2.getChildren().add(speed);
 			hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
 			hb_button_2.setAlignment(Pos.CENTER);
-			event_inner.consume();
 		});
 		hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
 		hb_button_2.getChildren().addAll(TopUp, speed);
