@@ -429,6 +429,7 @@ public class catView extends Application implements Observer {
 					setDead(hb_cat);
 				}
 				if(controller.getCatnip()>=800) {
+					controller.setGirlFriend(true);
 					HBox hb_gf = new HBox();//hbox insid girlfriend image
 					FileInputStream gf;
 					try {
@@ -439,7 +440,7 @@ public class catView extends Application implements Observer {
 						hb_gf.getChildren().add(gfView);
 						HBox.setMargin(gfView, new Insets(10,20,20,20));
 						hb_secondRow.getChildren().add(hb_gf);
-						controller.consumeCatnip();
+						
 						}
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block

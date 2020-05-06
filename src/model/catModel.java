@@ -44,6 +44,8 @@ public class catModel extends Observable {
 	private Timer timer_slot;
 	// this contains total land available
 	private int land;
+	
+	private boolean hasGirlFriend;
 
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
@@ -54,6 +56,7 @@ public class catModel extends Observable {
 		timer_season = new Timer();
 		timer_slot = new Timer();
 		initializing = true;
+		hasGirlFriend = false;
 		this.addObserver(view);
 		try {
 			RetriveState();
@@ -66,6 +69,14 @@ public class catModel extends Observable {
 		consume(); // this method keeps tracking the consumption of catnip
 	}
 
+	
+	/**
+	 * This method set hasGirlFriend
+	 */
+
+	public void setGirlFriend(boolean val) {
+		hasGirlFriend = val;
+	}
 	/**
 	 * this method starts a timer to keep tracking current season
 	 */
@@ -625,7 +636,11 @@ public class catModel extends Observable {
 					notifyObservers();
 					this.cancel();
 				} else {
+					if(hasGirlFriend) {
+						catnipRemaining-=2;
+					}else {
 					catnipRemaining -= 1;
+					}
 					syncMoneyNip();
 					setChanged();
 					notifyObservers();
