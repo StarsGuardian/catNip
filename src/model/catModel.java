@@ -635,10 +635,8 @@ public class catModel extends Observable {
 			}
 		};
 		if (!initializing && catView.speedup) {
-			System.out.println("f");
 			timer_slot.schedule(consume, 360000 / 5, 360000 / 5);
 		} else if (!initializing && !catView.speedup) {
-			System.out.println("s");
 			timer_slot.schedule(consume, 360000, 360000);
 		}
 	}
