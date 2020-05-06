@@ -34,8 +34,8 @@ import javafx.stage.Stage;
  * This class is catView, all the methods included in this class creates the
  * game board for user
  * 
- * @author ianfang
- *
+ * @author Jianfang
+ * @author Difeng Ye
  */
 public class catView extends Application implements Observer {
 	private catController controller;
@@ -44,13 +44,16 @@ public class catView extends Application implements Observer {
 	private Label totalMoney; // This label displays money information
 	private Label catNip; // This label displays remaining catNip
 	private HBox hb_cat; // This HBox contains cat images
+	private HBox hb_gf;// hbox insid girlfriend image
 	private StackPane[][] stackBoard; // This 2D array contains StackPane objects
-	private HBox hb_secondRow = new HBox();
+	private HBox hb_secondRow;
 	static boolean isBuying = false; // This boolean controls if user is doing purchase operation
 	public static boolean speedup = false; // This boolean controls if user speed up the game
 	static boolean inspeed = false; // This boolean controls if now is in speed up mode
 	static boolean insell = false; // This boolean controls if the current window is selling
 	static boolean deadCalled = false; // This boolean controls if the cat is dead
+	public static boolean girlfriend = false;
+	static Stage stage;
 
 	/**
 	 * This displays game board, stackBoard is a 2D array which contains StackPane
@@ -64,6 +67,7 @@ public class catView extends Application implements Observer {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
+		stage = primaryStage;
 		controller = new catController(this); // Initialize controller and pass view as a parameter
 		imageBoard = new ImageView[5][10]; // Initialize imageBoard 2D array which holds 100 ImageView object
 		stackBoard = new StackPane[5][10];
@@ -88,7 +92,7 @@ public class catView extends Application implements Observer {
 		primaryStage.show();
 		// if cat is dead replace the image
 		if (controller.getCatnip() <= 0) {
-			setDead(hb_cat);
+			setDead();
 		}
 	}
 
@@ -161,7 +165,6 @@ public class catView extends Application implements Observer {
 		FileInputStream moneyBag;
 		FileInputStream grass;
 		FileInputStream seeds;
-		FileInputStream gf;
 		try {
 			moneyBag = new FileInputStream("src/money.jpg"); // get money image
 			grass = new FileInputStream("src/plants.jpg"); // get catnip image
@@ -223,6 +226,7 @@ public class catView extends Application implements Observer {
 				e.printStackTrace();
 			}
 		});
+		Button speedon = new Button(" It'sOn ");
 		Button speed = new Button(" Speed ");
 		speed.setOnMouseClicked((event) -> {
 			inspeed = true;
@@ -230,34 +234,35 @@ public class catView extends Application implements Observer {
 				controller.paySpeed(100);
 				totalMoney.setText(String.valueOf(controller.getMoney()));
 				speedup = true;
-				Button speedon = new Button(" It'sOn ");
+				controller.consumeCatnip();
 				hb_button_2.getChildren().remove(speed);
 				hb_button_2.getChildren().add(speedon);
 				hb_button_2.setAlignment(Pos.CENTER);
 				hb_button_2.setMargin(speedon, new Insets(10, 20, 20, 20));
-				speedon.setOnMouseClicked((event_inner) -> {
-					hb_button_2.getChildren().remove(speedon);
-					hb_button_2.getChildren().add(speed);
-					hb_button_2.setAlignment(Pos.CENTER);
-					hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
-					event_inner.consume();
-					event.consume();
-				});
+				event.consume();
 			} else {
 				PopWindow pw = new PopWindow(controller, totalMoney, catNip);
 				pw.wrong();
 			}
 			inspeed = false;
 		});
-		hb_button_2.getChildren().addAll(TopUp, speed);
-		hb_button_2.setAlignment(Pos.CENTER);
+		speedon.setOnMouseClicked((event_inner) -> {
+			speedup = false;
+			controller.consumeCatnip();
+			hb_button_2.getChildren().remove(speedon);
+			hb_button_2.getChildren().add(speed);
+			hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
+			hb_button_2.setAlignment(Pos.CENTER);
+			event_inner.consume();
+		});
 		hb_button_2.setMargin(speed, new Insets(10, 20, 20, 20));
+		hb_button_2.getChildren().addAll(TopUp, speed);
 		hb_button_2.setMargin(TopUp, new Insets(10, 20, 20, 50));
 		all_button.getChildren().addAll(hb_button_1, hb_button_2);
 		hb_firstRow.getChildren().addAll(hb_money, hb_grass, hb_seed, all_button);
 		hb_firstRow.setAlignment(Pos.CENTER_LEFT);
 		// second hbox for second row
-
+		hb_secondRow = new HBox();
 		hb_cat = new HBox();
 		FileInputStream getCat;
 		try {
@@ -300,8 +305,7 @@ public class catView extends Application implements Observer {
 						Dragboard db = event.getDragboard();
 						if (db.hasImage()) {
 							imageBoard[row][col].setImage(db.getImage());
-							boolean fromFile = false;
-							controller.plantCatnip(row, col, fromFile);
+							controller.plantCatnip(row, col, false);
 							success = true;
 						}
 						event.setDropCompleted(success);
@@ -363,7 +367,7 @@ public class catView extends Application implements Observer {
 	 * @param hb_cat
 	 */
 	@SuppressWarnings("static-access")
-	private void setDead(HBox hb_cat) {
+	private void setDead() {
 		// TODO Auto-generated method stub
 		deadCalled = true;
 		if (!hb_cat.getChildren().isEmpty()) {
@@ -422,29 +426,46 @@ public class catView extends Application implements Observer {
 				totalMoney.setText(String.valueOf(controller.getMoney()));
 				catNip.setText(String.valueOf(controller.getCatnip()) + "/" + String.valueOf(controller.getLegacy()));
 				if (controller.getCatnip() <= 0 && !deadCalled) {
-					setDead(hb_cat);
+					setDead();
 				}
-				if (controller.getCatnip() >= 800) {
-					HBox hb_gf = new HBox();// hbox insid girlfriend image
-					FileInputStream gf;
-					try {
-						gf = new FileInputStream("src/gf.jpg");
-						Image gfImage = new Image(gf);
-						ImageView gfView = new ImageView(gfImage);
-						if (hb_secondRow.getChildren().size() < 2) {
-							hb_gf.getChildren().add(gfView);
-							HBox.setMargin(gfView, new Insets(10, 20, 20, 20));
-							hb_secondRow.getChildren().add(hb_gf);
-						}
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				if (controller.getCatnip() >= 800 && !girlfriend) {
+					setGirlFriend();
+				} else {
+					if (controller.getCatnip() < 800 && girlfriend) {
+						setGirlFriend();
 					}
-
 				}
-
 			}
 		});
+	}
+
+	private void setGirlFriend() {
+		// TODO Auto-generated method stub
+		if (hb_secondRow.getChildren().size() < 2) {
+			girlfriend = true;
+			hb_gf = new HBox();
+			FileInputStream gf;
+			try {
+				gf = new FileInputStream("src/gf.jpg");
+				Image gfImage = new Image(gf);
+				ImageView gfView = new ImageView(gfImage);
+				hb_gf.getChildren().add(gfView);
+				HBox.setMargin(gfView, new Insets(10, 20, 20, 20));
+				hb_secondRow.getChildren().add(hb_gf);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			PopWindow pw = new PopWindow(controller, totalMoney, catNip);
+			pw.haveGrilf();
+		} else {
+			girlfriend = false;
+			if (!hb_gf.getChildren().isEmpty()) {
+				hb_secondRow.getChildren().remove(1);
+				PopWindow pw = new PopWindow(controller, totalMoney, catNip);
+				pw.gonewindow();
+			}
+		}
 	}
 
 	/**
@@ -513,6 +534,45 @@ class PopWindow extends Stage {
 		control = controller;
 		newMoney = totalMoney;
 		grass = catNip;
+	}
+
+	@SuppressWarnings("static-access")
+	public void haveGrilf() {
+		// TODO Auto-generated method stub
+		Button close = new Button(" Exit ");
+		Button conti = new Button("MARRIED");
+		Label amount = new Label("800 catnip achievement accomplised\n" + "Rich guy gets Girlfriend!!\n"
+				+ "You've completed the game task\n" + "You've helped the cat to build his own family\n"
+				+ "You can choose to continue the game or exit\n"
+				+ "Be careful, when your remaining catnip drops under 800, " + "the grilfriend will be gone\n"
+				+ "That's Women!\n" + "Click MARRIED to continue, otherwise click Exit");
+		amount.setFont(Font.font("Verdana", 13));
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-background-color:white");
+		Scene newScene = new Scene(popup, 600, 240);
+		HBox labelNtext = new HBox();
+		labelNtext.getChildren().addAll(amount);
+		labelNtext.setMargin(amount, new Insets(30, 10, 20, 40));
+		labelNtext.setAlignment(Pos.CENTER);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(close, conti);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setMargin(close, new Insets(0, 30, 30, 30));
+		buttons.setMargin(conti, new Insets(0, 30, 30, 30));
+		close.setOnMouseClicked((event) -> {
+			popStage.close();
+			control.exitGame();
+			catView.stage.close();
+		});
+		conti.setOnMouseClicked((event) -> {
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, buttons);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
 	}
 
 	/**
@@ -754,6 +814,33 @@ class PopWindow extends Stage {
 		buttons.setMargin(close, new Insets(0, 30, 30, 50));
 		close.setOnMouseClicked((event) -> {
 			control.exitGame();
+			popStage.close();
+		});
+		VBox setAll = new VBox();
+		setAll.getChildren().addAll(labelNtext, buttons);
+		popup.add(setAll, 3, 3);
+		popStage.setScene(newScene);
+		popStage.show();
+	}
+
+	@SuppressWarnings("static-access")
+	public void gonewindow() {
+		Button close = new Button("Close");
+		Label amount = new Label("SHE'S GONE !!!");
+		amount.setFont(Font.font("Verdana", 12));
+		Stage popStage = new Stage();
+		GridPane popup = new GridPane();
+		popup.setStyle("-fx-background-color:white");
+		Scene newScene = new Scene(popup, 400, 100);
+		HBox labelNtext = new HBox();
+		labelNtext.getChildren().addAll(amount);
+		labelNtext.setMargin(amount, new Insets(30, 10, 20, 150));
+		labelNtext.setAlignment(Pos.CENTER);
+		HBox buttons = new HBox();
+		buttons.getChildren().addAll(close);
+		buttons.setAlignment(Pos.CENTER);
+		buttons.setMargin(close, new Insets(0, 30, 30, 170));
+		close.setOnMouseClicked((event) -> {
 			popStage.close();
 		});
 		VBox setAll = new VBox();

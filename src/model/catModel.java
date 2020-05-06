@@ -213,8 +213,7 @@ public class catModel extends Observable {
 					grown(row, col);
 					line.add(string);
 				} else {
-					boolean fromFile = true;
-					plantCatnip(row, col, fromFile);
+					plantCatnip(row, col, true);
 				}
 			}
 			reader_catnip.close();
@@ -611,7 +610,7 @@ public class catModel extends Observable {
 
 	/**
 	 * this method controls the catnip consumption, each cat will consume 1 catnip
-	 * per minute
+	 * per six minutes
 	 */
 	public void consume() {
 		TimerTask consume = new TimerTask() {
@@ -625,6 +624,9 @@ public class catModel extends Observable {
 					notifyObservers();
 					this.cancel();
 				} else {
+					if (catView.girlfriend) {
+						catnipRemaining -= 1;
+					}
 					catnipRemaining -= 1;
 					syncMoneyNip();
 					setChanged();
@@ -634,7 +636,7 @@ public class catModel extends Observable {
 		};
 		if (!initializing && catView.speedup) {
 			timer_slot.schedule(consume, 360000 / 5, 360000 / 5);
-		} else if (!initializing) {
+		} else if (!initializing && !catView.speedup) {
 			timer_slot.schedule(consume, 360000, 360000);
 		}
 	}
