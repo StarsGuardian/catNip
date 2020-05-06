@@ -44,8 +44,6 @@ public class catModel extends Observable {
 	private Timer timer_slot;
 	// this contains total land available
 	private int land;
-	
-	private boolean hasGirlFriend;
 
 	/**
 	 * Constructor, each time when model is initialized it retrives game state from
@@ -56,7 +54,6 @@ public class catModel extends Observable {
 		timer_season = new Timer();
 		timer_slot = new Timer();
 		initializing = true;
-		hasGirlFriend = false;
 		this.addObserver(view);
 		try {
 			RetriveState();
@@ -69,17 +66,6 @@ public class catModel extends Observable {
 		consume(); // this method keeps tracking the consumption of catnip
 	}
 
-	
-	/**
-	 * This method set hasGirlFriend
-	 */
-
-	public void setGirlFriend(boolean val) {
-		hasGirlFriend = val;
-	}
-	public boolean getGirlFriend() {
-		return hasGirlFriend;
-	}
 	/**
 	 * this method starts a timer to keep tracking current season
 	 */
@@ -211,7 +197,7 @@ public class catModel extends Observable {
 				int col = Integer.parseInt(filecontent[2]);
 				long duration = System.currentTimeMillis() - time;
 				System.out.println("time elapsed for this catnip: ");
-				System.out.println(duration / 1000/ 60);
+				System.out.println(duration / 1000 / 60);
 				// different season have requires different amount of time
 				// for catnip to grow
 				if (duration / 1000 / 60 >= 5 && spring) {
@@ -223,12 +209,11 @@ public class catModel extends Observable {
 				} else if (duration / 1000 / 60 >= 1 && fall) {
 					grown(row, col);
 					line.add(string);
-				} else if (duration / 1000/ 60 >= 10 && winter) {
+				} else if (duration / 1000 / 60 >= 10 && winter) {
 					grown(row, col);
 					line.add(string);
 				} else {
-					boolean fromFile = true;
-					plantCatnip(row, col, fromFile);
+					plantCatnip(row, col, true);
 				}
 			}
 			reader_catnip.close();
@@ -625,7 +610,7 @@ public class catModel extends Observable {
 
 	/**
 	 * this method controls the catnip consumption, each cat will consume 1 catnip
-	 * per minute
+	 * per six minutes
 	 */
 	public void consume() {
 		TimerTask consume = new TimerTask() {
@@ -639,11 +624,10 @@ public class catModel extends Observable {
 					notifyObservers();
 					this.cancel();
 				} else {
-					if(hasGirlFriend) {
-						catnipRemaining-=2;
-					}else {
-					catnipRemaining -= 1;
+					if (catView.girlfriend) {
+						catnipRemaining -= 1;
 					}
+					catnipRemaining -= 1;
 					syncMoneyNip();
 					setChanged();
 					notifyObservers();
@@ -652,7 +636,7 @@ public class catModel extends Observable {
 		};
 		if (!initializing && catView.speedup) {
 			timer_slot.schedule(consume, 360000 / 5, 360000 / 5);
-		} else if (!initializing) {
+		} else if (!initializing && !catView.speedup) {
 			timer_slot.schedule(consume, 360000, 360000);
 		}
 	}
