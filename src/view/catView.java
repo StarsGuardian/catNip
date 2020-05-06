@@ -52,7 +52,10 @@ public class catView extends Application implements Observer {
 	static boolean inspeed = false; // This boolean controls if now is in speed up mode
 	static boolean insell = false; // This boolean controls if the current window is selling
 	static boolean deadCalled = false; // This boolean controls if the cat is dead
-
+	public static void main(String[] args) {
+		
+		launch(args);
+	}
 	/**
 	 * This displays game board, stackBoard is a 2D array which contains StackPane
 	 * object inside it. ImageBoard is a 2D array which contains ImageView objects
@@ -92,6 +95,7 @@ public class catView extends Application implements Observer {
 			setDead();
 		}
 	}
+
 
 	/**
 	 * This method checks current available land
