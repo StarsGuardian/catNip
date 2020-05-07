@@ -53,6 +53,7 @@ public class catView extends Application implements Observer {
 	static boolean insell = false; // This boolean controls if the current window is selling
 	static boolean deadCalled = false; // This boolean controls if the cat is dead
 
+
 	public static boolean girlfriend = false; // This boolean controls the girlfriend
 	static Stage stage; // This boolean passes primaryStage to popwindow class
 
@@ -89,6 +90,9 @@ public class catView extends Application implements Observer {
 		});
 		DrawBoard(); // support background running
 		checkdisable(); // check unlocked land
+		FileInputStream geticon = new FileInputStream("src/icon.jpg");
+		Image icon = new Image(geticon);
+		primaryStage.getIcons().add(icon);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		// if cat is dead replace the image
@@ -576,9 +580,10 @@ class PopWindow extends Stage {
 
 	/**
 	 * draw the pop up window
+	 * @throws FileNotFoundException 
 	 */
 	@SuppressWarnings("static-access")
-	public void display() {
+	public void display(){
 		Button confirm = new Button("Confirm");
 		Button cancel = new Button("Cancel");
 		Label amount = new Label("Enter amount: ");
@@ -620,6 +625,17 @@ class PopWindow extends Stage {
 		VBox setAll = new VBox();
 		setAll.getChildren().addAll(labelNtext, buttons);
 		popup.add(setAll, 3, 3);
+		
+		FileInputStream geticon;
+		try {
+			geticon = new FileInputStream("src/icon.jpg");
+			Image icon = new Image(geticon);
+			popStage.getIcons().add(icon);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		popStage.setScene(newScene);
 		popStage.show();
 	}

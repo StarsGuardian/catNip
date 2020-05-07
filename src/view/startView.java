@@ -1,6 +1,7 @@
 package view;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -10,7 +11,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 /**
@@ -72,18 +72,23 @@ public class startView extends Application{
 			primaryStage.close();
 		});
 		Scene scene = new Scene(root);
+		FileInputStream geticon = new FileInputStream("src/icon.jpg"); 
+		Image icon = new Image(geticon);
+		primaryStage.getIcons().add(icon);
 		primaryStage.setScene(scene);		
 		primaryStage.setWidth(750);
 		primaryStage.setHeight(700);
 		primaryStage.centerOnScreen();
-		primaryStage.setTitle("Cat IDLE Game");
+		primaryStage.setTitle("Katten Idle Game");
 		primaryStage.show();
 		
 	}
 
 }
 
-
+/**
+A new pop window for introduction
+*/
 class IntroWindow extends Stage {
 	Stage popStage = new Stage();
 	TextArea textArea = new TextArea("A wandering cat just lost his parents "
@@ -111,6 +116,16 @@ class IntroWindow extends Stage {
 		Scene newScene = new Scene(pane,500,250);
 		pane.setStyle("-fx-background-color:white");
 		pane.setCenter(textArea);
+		FileInputStream geticon;
+		try {
+			geticon = new FileInputStream("src/icon.jpg");
+			Image icon = new Image(geticon);
+			popStage.getIcons().add(icon);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+
 		popStage.setScene(newScene);
 		popStage.show();
 	}
