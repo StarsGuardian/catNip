@@ -1,5 +1,4 @@
 import javafx.application.Application;
-import view.catView;
 import view.startView;
 
 /**

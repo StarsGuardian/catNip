@@ -613,11 +613,14 @@ public class catModel extends Observable {
 	 * per six minutes
 	 */
 	public void consume() {
-		TimerTask consume = new TimerTask() {
+		TimerTask consume_f = new TimerTask() {
 
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				if (!catView.speedup) {
+					this.cancel();
+				}
 				if (catnipRemaining <= 0) {
 					catnipRemaining = 0;
 					setChanged();
@@ -625,9 +628,35 @@ public class catModel extends Observable {
 					this.cancel();
 				} else {
 					if (catView.girlfriend) {
+						catnipRemaining -= 2;
+					} else {
 						catnipRemaining -= 1;
 					}
-					catnipRemaining -= 1;
+					syncMoneyNip();
+					setChanged();
+					notifyObservers();
+				}
+			}
+		};
+		TimerTask consume_s = new TimerTask() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				if (catView.speedup) {
+					this.cancel();
+				}
+				if (catnipRemaining <= 0) {
+					catnipRemaining = 0;
+					setChanged();
+					notifyObservers();
+					this.cancel();
+				} else {
+					if (catView.girlfriend) {
+						catnipRemaining -= 2;
+					} else {
+						catnipRemaining -= 1;
+					}
 					syncMoneyNip();
 					setChanged();
 					notifyObservers();
@@ -635,9 +664,9 @@ public class catModel extends Observable {
 			}
 		};
 		if (!initializing && catView.speedup) {
-			timer_slot.schedule(consume, 360000 / 5, 360000 / 5);
+			timer_slot.schedule(consume_f, 360000 / 5, 360000 / 5);
 		} else if (!initializing && !catView.speedup) {
-			timer_slot.schedule(consume, 360000, 360000);
+			timer_slot.schedule(consume_s, 360000, 360000);
 		}
 	}
 

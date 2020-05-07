@@ -56,7 +56,6 @@ public class catView extends Application implements Observer {
 	public static boolean girlfriend = false; // This boolean controls the girlfriend
 	static Stage stage; // This boolean passes primaryStage to popwindow class
 
-
 	/**
 	 * This displays game board, stackBoard is a 2D array which contains StackPane
 	 * object inside it. ImageBoard is a 2D array which contains ImageView objects
@@ -97,7 +96,6 @@ public class catView extends Application implements Observer {
 			setDead();
 		}
 	}
-
 
 	/**
 	 * This method checks current available land
