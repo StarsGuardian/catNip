@@ -98,7 +98,6 @@ public class catController {
 		return model.getCatNipRemaining();
 	}
 
-	
 	/**
 	 * this method will get money
 	 * 
@@ -108,17 +107,6 @@ public class catController {
 		return model.getMoney();
 	}
 
-	/**
-	 * this method will set girlfriend
-	 *
-	 */
-	public void  setGirlFriend(boolean val) {
-			model.setGirlFriend(val);;
-	}
-
-	public boolean  getGirlFriend() {
-		return model.getGirlFriend();
-	}
 	/**
 	 * this method will get legacy
 	 * 
