@@ -86,7 +86,9 @@ public class startView extends Application{
 
 }
 
-
+/**
+A new pop window for introduction
+*/
 class IntroWindow extends Stage {
 	Stage popStage = new Stage();
 	TextArea textArea = new TextArea("A wandering cat just lost his parents "
